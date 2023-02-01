@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{CD2D9F37-C988-423A-A8DB-199F1127B420}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="projects\ProfileViewer.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="projects\ProfilerPackage.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="projects\ProfilerUnitTest.dproj">
+            <Dependencies>projects\ProfilerPackage.dproj</Dependencies>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ProfileViewer">
+        <MSBuild Projects="projects\ProfileViewer.dproj"/>
+    </Target>
+    <Target Name="ProfileViewer:Clean">
+        <MSBuild Projects="projects\ProfileViewer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProfileViewer:Make">
+        <MSBuild Projects="projects\ProfileViewer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ProfilerPackage">
+        <MSBuild Projects="projects\ProfilerPackage.dproj"/>
+    </Target>
+    <Target Name="ProfilerPackage:Clean">
+        <MSBuild Projects="projects\ProfilerPackage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProfilerPackage:Make">
+        <MSBuild Projects="projects\ProfilerPackage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ProfilerUnitTest" DependsOnTargets="ProfilerPackage">
+        <MSBuild Projects="projects\ProfilerUnitTest.dproj"/>
+    </Target>
+    <Target Name="ProfilerUnitTest:Clean" DependsOnTargets="ProfilerPackage:Clean">
+        <MSBuild Projects="projects\ProfilerUnitTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProfilerUnitTest:Make" DependsOnTargets="ProfilerPackage:Make">
+        <MSBuild Projects="projects\ProfilerUnitTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ProfileViewer;ProfilerPackage;ProfilerUnitTest"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ProfileViewer:Clean;ProfilerPackage:Clean;ProfilerUnitTest:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ProfileViewer:Make;ProfilerPackage:Make;ProfilerUnitTest:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
