@@ -81,7 +81,7 @@ end;
 
 function TProfileStatistic.CommaText: string;
 const
-  textFormat = '"%s","%.3f","%.3f","%.3f"';
+  textFormat = '"%s","%.2f","%.2f","%.2f"';
 begin
   Result := Format(textFormat, [FMeasureName, FMean, FMedian, FStddev]);
 end;

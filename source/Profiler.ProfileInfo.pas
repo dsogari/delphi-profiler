@@ -53,7 +53,7 @@ end;
 
 function TProfileInfo.CommaText: string;
 const
-  TextFormat = '"%s","%d","%.1f","%.3f"';
+  TextFormat = '"%s","%d","%.2f","%.2f"';
 begin
   Result := Format(TextFormat, [FScopeName, FTotalCalls, TotalMicroseconds, AverageMicroseconds]);
 end;

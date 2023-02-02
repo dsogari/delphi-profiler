@@ -32,8 +32,8 @@ type
       [Test]
       [TestCase('Two inputs', 'abc,2|def,4;' +
             '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
-            '"def","1","0.4","0.400"|' +
-            '"abc","1","0.2","0.200"', ';')]
+            '"def","1","0.40","0.40"|' +
+            '"abc","1","0.20","0.20"', ';')]
       procedure TestSaveToStream(const DelimitedInput, DelimitedExpected: string);
 
   end;

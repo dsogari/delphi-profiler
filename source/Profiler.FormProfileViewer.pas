@@ -23,18 +23,19 @@ type
     StatsGrid: TStringGrid;
     procedure ProfileGridKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure StatsGridKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure ProfileGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure ProfileGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
+      State: TGridDrawState);
 
     private
-      FLines  : TStrings;
-      FMeans  : array [0 .. 3] of Double;
+      FLines: TStrings;
+      FMeans: array [0 .. 3] of Double;
       FStddevs: array [0 .. 3] of Double;
 
       procedure HandleCreate(Sender: TObject);
 
-      function GetHighlightColor(value: Double; ACol: Integer): TColor;
-      procedure HighlightCell(const text: string; Canvas: TCanvas; Rect: TRect; color: TColor);
-      procedure LoadGridFromFile(Grid: TStringGrid; const path: string);
+      function GetHighlightColor(Value: Double; Col: Integer): TColor;
+      procedure HighlightCell(const text: string; Canvas: TCanvas; Rect: TRect; Color: TColor);
+      procedure LoadGridFromFile(Grid: TStringGrid; const Path: string);
       procedure AutoSizeGrid(Grid: TStringGrid);
       procedure InitializeMeansAdsStddevs;
       procedure CopySelectionToClipboard(Grid: TStringGrid);
@@ -58,9 +59,9 @@ uses
 constructor TFormProfileViewer.Create(AOwner: TComponent);
 begin
   inherited;
-  OnCreate                 := HandleCreate;
+  OnCreate := HandleCreate;
 
-  FLines                   := TStringList.Create;
+  FLines := TStringList.Create;
   FLines.TrailingLineBreak := false;
 end;
 
@@ -73,7 +74,7 @@ end;
 procedure TFormProfileViewer.ProfileGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
   State: TGridDrawState);
 var
-  sValue        : Double;
+  sValue: Double;
   highlightColor: TColor;
 begin
   if (ACol > 1) and (ARow > 0) then
@@ -100,29 +101,29 @@ begin
     CopySelectionToClipboard(StatsGrid);
 end;
 
-function TFormProfileViewer.GetHighlightColor(value: Double; ACol: Integer): TColor;
+function TFormProfileViewer.GetHighlightColor(Value: Double; Col: Integer): TColor;
 begin
-  if value > FMeans[ACol] + 3 * FStddevs[ACol] then
+  if Value > FMeans[Col] + 3 * FStddevs[Col] then
     Result := clWebTan
-  else if value > FMeans[ACol] + 2 * FStddevs[ACol] then
+  else if Value > FMeans[Col] + 2 * FStddevs[Col] then
     Result := clWebWheat
-  else if value > FMeans[ACol] + FStddevs[ACol] then
+  else if Value > FMeans[Col] + FStddevs[Col] then
     Result := clWebBeige
   else
     Result := clCream;
 end;
 
-procedure TFormProfileViewer.HighlightCell(const text: string; Canvas: TCanvas; Rect: TRect; color: TColor);
+procedure TFormProfileViewer.HighlightCell(const text: string; Canvas: TCanvas; Rect: TRect;
+  Color: TColor);
 const
-  c_nLeftOffset = 4;
+  LeftOffset = 6;
 var
-  nTopOffset: Integer;
+  TopOffset: Integer;
 begin
-  Canvas.Brush.color := color;
-  Rect.Inflate(c_nLeftOffset, 0, 0, 0);
+  Canvas.Brush.Color := Color;
   Canvas.FillRect(Rect);
-  nTopOffset := (Rect.Height - Canvas.TextHeight(text)) div 2;
-  Canvas.TextOut(Rect.Left + c_nLeftOffset + 2, Rect.Top + nTopOffset, text);
+  TopOffset := (Rect.Height - Canvas.TextHeight(text)) div 2;
+  Canvas.TextOut(Rect.Left + LeftOffset, Rect.Top + TopOffset, text);
 end;
 
 procedure TFormProfileViewer.CopySelectionToClipboard(Grid: TStringGrid);
@@ -130,16 +131,16 @@ const
   c_chTab = #9;
 var
   strLine: string;
-  I, K   : Integer;
+  I, K: Integer;
 begin
   try
     with Grid do
-      for I             := Selection.Top to Selection.Bottom do
+      for I := Selection.Top to Selection.Bottom do
         begin
-          strLine       := '';
-          for K         := Selection.Left to Selection.Right do
+          strLine := '';
+          for K := Selection.Left to Selection.Right do
             begin
-              strLine   := strLine + Cells[K, I];
+              strLine := strLine + Cells[K, I];
               if K <> Selection.Right then
                 strLine := strLine + c_chTab;
             end;
@@ -158,14 +159,14 @@ begin
   InitializeMeansAdsStddevs;
 end;
 
-procedure TFormProfileViewer.LoadGridFromFile(Grid: TStringGrid; const path: string);
+procedure TFormProfileViewer.LoadGridFromFile(Grid: TStringGrid; const Path: string);
 var
   I: Integer;
 begin
   try
-    FLines.LoadFromFile(path);
-    Grid.RowCount            := FLines.Count;
-    for I                    := 0 to FLines.Count - 1 do
+    FLines.LoadFromFile(Path);
+    Grid.RowCount := FLines.Count;
+    for I := 0 to FLines.Count - 1 do
       Grid.Rows[I].CommaText := FLines[I];
     AutoSizeGrid(Grid);
   finally
@@ -175,32 +176,36 @@ end;
 
 procedure TFormProfileViewer.AutoSizeGrid(Grid: TStringGrid);
 const
-  c_nColWidthMin = 10;
-  c_nColWidthPad = 10;
+  ColWidthMin  = 10;
+  ColWidthPad  = 10;
+  GridWidthPad = 10;
 var
-  C, R, W     : Integer;
-  nColWidthMax: Integer;
+  Col, Row, TextWidth, ColWidthMax, GridWidth: Integer;
 begin
-  for C                  := 0 to Grid.ColCount - 1 do
+  GridWidth := 0;
+  for Col := 0 to Grid.ColCount - 1 do
     begin
-      nColWidthMax       := c_nColWidthMin;
-      for R              := 0 to (Grid.RowCount - 1) do
+      ColWidthMax := ColWidthMin;
+      for Row := 0 to (Grid.RowCount - 1) do
         begin
-          W              := Grid.Canvas.TextWidth(Grid.Cells[C, R]);
-          if W > nColWidthMax then
-            nColWidthMax := W;
+          TextWidth := Grid.Canvas.TextWidth(Grid.Cells[Col, Row]);
+          if TextWidth > ColWidthMax then
+            ColWidthMax := TextWidth;
         end;
-      Grid.ColWidths[C]  := nColWidthMax + c_nColWidthPad;
+      Grid.ColWidths[Col] := ColWidthMax + ColWidthPad;
+      Inc(GridWidth, Grid.ColWidths[Col]);
     end;
+  if ClientWidth < GridWidth + GridWidthPad then
+    ClientWidth := GridWidth + GridWidthPad;
 end;
 
 procedure TFormProfileViewer.InitializeMeansAdsStddevs;
 var
   I: Integer;
 begin
-  for I           := 2 to 3 do
+  for I := 2 to 3 do
     begin
-      FMeans[I]   := StrToFloat(StatsGrid.Cells[1, I]);
+      FMeans[I] := StrToFloat(StatsGrid.Cells[1, I]);
       FStddevs[I] := StrToFloat(StatsGrid.Cells[3, I]);
     end;
 end;

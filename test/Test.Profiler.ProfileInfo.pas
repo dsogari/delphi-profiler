@@ -24,18 +24,18 @@ type
       procedure TestCommaHeader(const Expected: string);
 
       [Test]
-      [TestCase('Single call', '1;2;"abc","1","0.2","0.200"', ';')]
-      [TestCase('Two calls', '2;2;"abc","2","0.2","0.100"', ';')]
+      [TestCase('Single call', '1;2;"abc","1","0.20","0.20"', ';')]
+      [TestCase('Two calls', '2;2;"abc","2","0.20","0.10"', ';')]
       procedure TestCommaText(TotalCalls, TotalTicks: Int64; const Expected: string);
 
       [Test]
-      [TestCase('Single call', '1,2,0.2')]
-      [TestCase('Two calls', '2,2,0.2')]
+      [TestCase('Single call', '1,2,0.20')]
+      [TestCase('Two calls', '2,2,0.20')]
       procedure TestTotalMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
 
       [Test]
-      [TestCase('Single call', '1,2,0.2')]
-      [TestCase('Two calls', '2,2,0.1')]
+      [TestCase('Single call', '1,2,0.20')]
+      [TestCase('Two calls', '2,2,0.10')]
       procedure TestAverageMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
   end;
 

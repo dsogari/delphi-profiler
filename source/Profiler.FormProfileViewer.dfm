@@ -1,9 +1,9 @@
 object FormProfileViewer: TFormProfileViewer
   Left = 0
   Top = 0
-  Caption = 'FormProfileViewer'
-  ClientHeight = 761
-  ClientWidth = 584
+  Caption = 'ProfileViewer'
+  ClientHeight = 270
+  ClientWidth = 270
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object FormProfileViewer: TFormProfileViewer
   TextHeight = 13
   object ProfileStatsSplitter: TSplitter
     Left = 0
-    Top = 638
-    Width = 584
+    Top = 147
+    Width = 270
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -26,8 +26,8 @@ object FormProfileViewer: TFormProfileViewer
   object ProfileGrid: TStringGrid
     Left = 0
     Top = 0
-    Width = 584
-    Height = 638
+    Width = 270
+    Height = 147
     Align = alClient
     ColCount = 4
     DrawingStyle = gdsClassic
@@ -39,8 +39,8 @@ object FormProfileViewer: TFormProfileViewer
   end
   object StatsGrid: TStringGrid
     Left = 0
-    Top = 641
-    Width = 584
+    Top = 150
+    Width = 270
     Height = 120
     Align = alBottom
     ColCount = 4

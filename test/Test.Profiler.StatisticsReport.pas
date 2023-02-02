@@ -37,9 +37,9 @@ type
       [Test]
       [TestCase('Two infos', '1,2|3,4;' +
             '"Measure","Mean","Median","Standard Deviation"|' +
-            '"Total Calls","2.000","2.000","1.414"|' +
-            '"Total Time (us)","0.300","0.300","0.141"|' +
-            '"Average Time (us)","0.167","0.167","0.047"', ';')]
+            '"Total Calls","2.00","2.00","1.41"|' +
+            '"Total Time (us)","0.30","0.30","0.14"|' +
+            '"Average Time (us)","0.17","0.17","0.05"', ';')]
       procedure TestSaveToStream(const DelimitedInfos, DelimitedExpected: string);
 
   end;

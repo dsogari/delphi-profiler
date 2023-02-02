@@ -24,9 +24,9 @@ type
       procedure TestCommaHeader(const Expected: string);
 
       [Test]
-      [TestCase('Single element', '1;"abc","1.000","1.000","1.000"', ';')]
-      [TestCase('Two elements', '1,2;"abc","1.500","1.500","0.707"', ';')]
-      [TestCase('Three elements', '1,2,3;"abc","2.000","2.000","1.000"', ';')]
+      [TestCase('Single element', '1;"abc","1.00","1.00","1.00"', ';')]
+      [TestCase('Two elements', '1,2;"abc","1.50","1.50","0.71"', ';')]
+      [TestCase('Three elements', '1,2,3;"abc","2.00","2.00","1.00"', ';')]
       procedure TestCommaText(const DelimitedValues, Expected: string);
 
   end;
