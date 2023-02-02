@@ -20,7 +20,7 @@ type
       procedure TearDown;
 
       [Test]
-      [TestCase('Header', '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"', ';')]
+      [TestCase('Header', '"Scope Name","Total Calls","Total Time (us)","Avg. Time (us)"', ';')]
       procedure TestCommaHeader(const Expected: string);
 
       [Test]

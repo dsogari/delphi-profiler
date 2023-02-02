@@ -6,7 +6,6 @@ program ProfilerClientTest;
 
 
 uses
-  System.Classes,
   System.Diagnostics,
   System.TimeSpan,
   System.SysUtils,

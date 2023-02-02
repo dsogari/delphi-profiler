@@ -26,12 +26,12 @@ type
 
       [Test]
       [TestCase('Two inputs', 'abc,2|def,4;' +
-            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"', ';')]
+            '"Scope Name","Total Calls","Total Time (us)","Avg. Time (us)"', ';')]
       procedure TestClear(const DelimitedInput, DelimitedExpected: string);
 
       [Test]
       [TestCase('Two inputs', 'abc,2|def,4;' +
-            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"|' +
+            '"Scope Name","Total Calls","Total Time (us)","Avg. Time (us)"|' +
             '"def","1","0.40","0.40"|' +
             '"abc","1","0.20","0.20"', ';')]
       procedure TestSaveToStream(const DelimitedInput, DelimitedExpected: string);
