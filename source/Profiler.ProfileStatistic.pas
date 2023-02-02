@@ -14,12 +14,17 @@ type
       FMedian: Double;
       FStddev: Double;
 
-      class function GetMedian(values: TArray<Double>): Double;
+      class function GetMedian(var Values: TArray<Double>): Double;
+      procedure SetValues(Values: TArray<Double>);
 
     public
-      constructor Create(const MeasureName: string; values: TArray<Double>);
+      constructor Create(const MeasureName: string); overload;
+      constructor Create(const MeasureName: string; const Values: TArray<Double>); overload;
       class function CommaHeader: string;
       function CommaText: string;
+
+    public
+      property Values: TArray<Double> write SetValues;
   end;
 
 implementation
@@ -28,27 +33,43 @@ uses
   System.SysUtils,
   System.Math;
 
-constructor TProfileStatistic.Create(const MeasureName: string; values: TArray<Double>);
+constructor TProfileStatistic.Create(const MeasureName: string);
 begin
   FMeasureName := MeasureName;
-  if Length(values) > 0 then
-    begin
-      MeanAndStdDev(values, FMean, FStddev);
-      FMedian := GetMedian(values);
-    end;
 end;
 
-class function TProfileStatistic.GetMedian(values: TArray<Double>): Double;
+constructor TProfileStatistic.Create(const MeasureName: string; const Values: TArray<Double>);
+begin
+  Create(MeasureName);
+  SetValues(Values);
+end;
+
+class function TProfileStatistic.GetMedian(var Values: TArray<Double>): Double;
 var
   len: Integer;
 begin
-  len := Length(values);
+  len := Length(Values);
   Assert(len > 0);
-  TArray.Sort<Double>(values);
+  TArray.Sort<Double>(Values);
   if (len mod 2) = 0 then
-    Result := (values[(len div 2) - 1] + values[len div 2]) / 2
+    Result := (Values[(len div 2) - 1] + Values[len div 2]) / 2
   else
-    Result := values[len div 2];
+    Result := Values[len div 2];
+end;
+
+procedure TProfileStatistic.SetValues(Values: TArray<Double>);
+begin
+  if Length(Values) > 0 then
+    begin
+      MeanAndStdDev(Values, FMean, FStddev);
+      FMedian := GetMedian(Values);
+    end
+  else
+    begin
+      FMean := NaN;
+      FStddev := NaN;
+      FMedian := NaN;
+    end;
 end;
 
 class function TProfileStatistic.CommaHeader: string;

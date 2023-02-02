@@ -9,7 +9,7 @@ uses
 type
 
   [TestFixture]
-  TMyTestObject = class
+  TProfileInfoTest = class
     private
       FTProfileInfo: TProfileInfo;
 
@@ -40,36 +40,36 @@ implementation
 
 { TMyTestObject }
 
-procedure TMyTestObject.Setup;
+procedure TProfileInfoTest.Setup;
 begin
   FTProfileInfo := TProfileInfo.Create('abc');
 end;
 
-procedure TMyTestObject.TearDown;
+procedure TProfileInfoTest.TearDown;
 begin
   FTProfileInfo.Free;
 end;
 
-procedure TMyTestObject.TestAverageMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
+procedure TProfileInfoTest.TestAverageMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
 begin
   FTProfileInfo.TotalCalls := TotalCalls;
   FTProfileInfo.TotalTicks := TotalTicks;
   Assert.AreEqual(Expected, FTProfileInfo.AverageMicroseconds);
 end;
 
-procedure TMyTestObject.TestCommaHeader(const Expected: string);
+procedure TProfileInfoTest.TestCommaHeader(const Expected: string);
 begin
   Assert.AreEqual(Expected, FTProfileInfo.CommaHeader);
 end;
 
-procedure TMyTestObject.TestCommaText(TotalCalls, TotalTicks: Int64; const Expected: string);
+procedure TProfileInfoTest.TestCommaText(TotalCalls, TotalTicks: Int64; const Expected: string);
 begin
   FTProfileInfo.TotalCalls := TotalCalls;
   FTProfileInfo.TotalTicks := TotalTicks;
   Assert.AreEqual(Expected, FTProfileInfo.CommaText);
 end;
 
-procedure TMyTestObject.TestTotalMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
+procedure TProfileInfoTest.TestTotalMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
 begin
   FTProfileInfo.TotalCalls := TotalCalls;
   FTProfileInfo.TotalTicks := TotalTicks;
@@ -78,6 +78,6 @@ end;
 
 initialization
 
-TDUnitX.RegisterTestFixture(TMyTestObject);
+TDUnitX.RegisterTestFixture(TProfileInfoTest);
 
 end.
