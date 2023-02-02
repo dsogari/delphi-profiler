@@ -55,6 +55,7 @@ end;
 
 procedure TProfileTracer.Log(Trace: ITrace);
 begin
+  Assert(Assigned(Trace));
   FCriticalSection.Acquire;
   if FScopeFilter.Match(Trace.EventName).Success then
     try

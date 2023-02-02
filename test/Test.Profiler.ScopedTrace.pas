@@ -15,6 +15,8 @@ type
       FTracer: TMock<ITracer>;
 
       function Trace(const ScopeName: ShortString): ITrace;
+      class function CheckEventEnter(Trace: ITrace): Boolean;
+      class function CheckEventLeave(Trace: ITrace): Boolean;
 
     public
       [Setup]
@@ -25,6 +27,7 @@ type
       [Test]
       [TestCase('Once', '1')]
       [TestCase('Twice', '2')]
+      [TestCase('Hundred times', '100')]
       procedure TestTrace(Times: Integer);
   end;
 
@@ -48,15 +51,30 @@ begin
   Result := TScopedTrace.Create(ScopeName, FTracer);
 end;
 
+class function TScopedTraceTest.CheckEventEnter(Trace: ITrace): Boolean;
+begin
+  Result := Assigned(Trace) and (Trace.EventType = TTraceEventType.Enter);
+end;
+
+class function TScopedTraceTest.CheckEventLeave(Trace: ITrace): Boolean;
+begin
+  Result := Assigned(Trace) and
+    (Trace.EventType = TTraceEventType.Leave) and (Trace.ElapsedTicks < 5);
+end;
+
 procedure TScopedTraceTest.TestTrace(Times: Integer);
 var
   I: Integer;
 begin
-  FTracer.Setup.Expect.Exactly('Log', Times * 2);
-  for I := 1 to Times do
+  with FTracer.Setup do
     begin
-      Trace('TScopedTraceTest.TestTrace');
+      Expect.Exactly(Times).When.Log(It0.Matches<ITrace>(CheckEventEnter));
+      Expect.Exactly(Times).When.Log(It0.Matches<ITrace>(CheckEventLeave));
     end;
+
+  for I := 1 to Times do
+    Trace('TScopedTraceTest.TestTrace');
+
   Assert.WillNotRaise(
       procedure
     begin

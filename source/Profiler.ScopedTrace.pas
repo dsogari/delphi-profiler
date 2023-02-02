@@ -37,7 +37,8 @@ uses
 
 class function TScopedTrace.NewInstance: TObject;
 begin
-  FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
+  if FStartTimeStamp > 0 then
+    FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
   Result := inherited;
 end;
 
