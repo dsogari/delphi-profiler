@@ -28,18 +28,18 @@ type
 
       [Test]
       [TestCase('Two infos', '1,2|3,4;' +
-            '"Measure","Mean","Median","Standard Deviation"|' +
+            '"Measure","Mean","Median","Standard Dev."|' +
             '"Total Calls","NAN","NAN","NAN"|' +
             '"Total Time (us)","NAN","NAN","NAN"|' +
-            '"Average Time (us)","NAN","NAN","NAN"', ';')]
+            '"Avg. Time (us)","NAN","NAN","NAN"', ';')]
       procedure TestClear(const DelimitedInfos, DelimitedExpected: string);
 
       [Test]
       [TestCase('Two infos', '1,2|3,4;' +
-            '"Measure","Mean","Median","Standard Deviation"|' +
+            '"Measure","Mean","Median","Standard Dev."|' +
             '"Total Calls","2.00","2.00","1.41"|' +
             '"Total Time (us)","0.30","0.30","0.14"|' +
-            '"Average Time (us)","0.17","0.17","0.05"', ';')]
+            '"Avg. Time (us)","0.17","0.17","0.05"', ';')]
       procedure TestSaveToStream(const DelimitedInfos, DelimitedExpected: string);
 
   end;

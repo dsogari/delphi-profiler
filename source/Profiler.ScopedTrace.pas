@@ -15,6 +15,7 @@ type
 
       class threadvar FElapsed: Int64;
       class threadvar FStartTimeStamp: Int64;
+      class constructor Create;
 
     private { ITrace }
       function GetEventName: string;
@@ -34,6 +35,11 @@ implementation
 
 uses
   System.Diagnostics;
+
+class constructor TScopedTrace.Create;
+begin
+  TStopwatch.Create; // initialize the stopwatch variables
+end;
 
 class function TScopedTrace.NewInstance: TObject;
 begin
@@ -90,9 +96,5 @@ function TScopedTrace.GetElapsedTicks: Int64;
 begin
   Result := FElapsed;
 end;
-
-initialization
-
-TStopwatch.Create; // initialize the stopwatch variables
 
 end.

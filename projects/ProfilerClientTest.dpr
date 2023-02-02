@@ -44,6 +44,7 @@ const
 
 begin
   try
+    EnableTracing;
     for I := 1 to TotalCalls do
       Outter;
     SaveTracingProfileToFile('profile.csv');

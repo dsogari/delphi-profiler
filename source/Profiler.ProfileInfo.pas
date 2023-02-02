@@ -48,7 +48,7 @@ class function TProfileInfo.CommaHeader: string;
 const
   HeaderFormat = '"%s","%s","%s","%s"';
 begin
-  Result := Format(HeaderFormat, ['Scope', 'Total Calls', 'Total Time (us)', 'Average Time (us)']);
+  Result := Format(HeaderFormat, ['Scope', 'Total Calls', 'Total Time (us)', 'Avg. Time (us)']);
 end;
 
 function TProfileInfo.CommaText: string;

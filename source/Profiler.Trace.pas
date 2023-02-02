@@ -28,6 +28,7 @@ type
     procedure SaveStatisticsToStream(Stream: TStream);
   end;
 
+procedure EnableTracing(Value: Boolean = True);
 function Trace(const ScopeName: ShortString): ITrace;
 procedure SetTracingScopeFilter(const Pattern: string);
 procedure SaveTracingProfileToFile(const FileName: string);
@@ -41,6 +42,14 @@ implementation
 uses
   Profiler.ScopedTrace,
   Profiler.ProfileTracer;
+
+procedure EnableTracing(Value: Boolean);
+begin
+  if Value then
+    GlobalTracer := TProfileTracer.Create
+  else
+    GlobalTracer := nil;
+end;
 
 function Trace(const ScopeName: ShortString): ITrace;
 begin
@@ -78,9 +87,5 @@ begin
     Stream.Free;
   end;
 end;
-
-initialization
-
-GlobalTracer := TProfileTracer.Create;
 
 end.

@@ -1,7 +1,7 @@
 object FormProfileViewer: TFormProfileViewer
   Left = 0
   Top = 0
-  Caption = 'ProfileViewer'
+  Caption = 'Profile Viewer'
   ClientHeight = 270
   ClientWidth = 270
   Color = clBtnFace

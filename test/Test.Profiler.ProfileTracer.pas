@@ -29,12 +29,12 @@ type
 
       [Test]
       [TestCase('Enter', 'abc,0,1;2,1,0;' +
-            '"Scope","Total Calls","Total Time (us)","Average Time (us)"', ';')]
+            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"', ';')]
       [TestCase('Enter and leave', 'abc,0,1|abc,1,1;4,2,1;' +
-            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"|' +
             '"abc","1","0.10","0.10"', ';')]
       [TestCase('Enter, enter and leave, leave', 'abc,0,1|def,0,2|def,1,3|abc,1,4;8,4,3;' +
-            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"|' +
             '"abc","1","0.60","0.60"|' +
             '"def","1","0.30","0.30"', ';')]
       procedure TestLog(const DelimitedTraceEvents, DelimitedExpectedCalls,
@@ -42,10 +42,10 @@ type
 
       [Test]
       [TestCase('Select first', 'a.*;abc,0,1|def,0,2|def,1,3|abc,1,4;6,2,1;' +
-            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"|' +
             '"abc","1","0.40","0.40"', ';')]
       [TestCase('Select second', '^[^a]*;abc,0,1|def,0,2|def,1,3|abc,1,4;6,2,1;' +
-            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"Scope","Total Calls","Total Time (us)","Avg. Time (us)"|' +
             '"def","1","0.30","0.30"', ';')]
       procedure TestSetScopeFilter(const Pattern, DelimitedTraceEvents, DelimitedExpectedCalls,
         DelimitedExpectedProfile: string);

@@ -76,7 +76,7 @@ class function TProfileStatistic.CommaHeader: string;
 const
   headerFormat = '"%s","%s","%s","%s"';
 begin
-  Result := Format(headerFormat, ['Measure', 'Mean', 'Median', 'Standard Deviation']);
+  Result := Format(headerFormat, ['Measure', 'Mean', 'Median', 'Standard Dev.']);
 end;
 
 function TProfileStatistic.CommaText: string;

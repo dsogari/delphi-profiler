@@ -68,7 +68,7 @@ begin
   FReportInfo.Clear;
   FReportInfo.Add(TProfileStatistic.Create('Total Calls', FTotalCalls.ToArray));
   FReportInfo.Add(TProfileStatistic.Create('Total Time (us)', FTotalMicroseconds.ToArray));
-  FReportInfo.Add(TProfileStatistic.Create('Average Time (us)', FAverageMicroseconds.ToArray));
+  FReportInfo.Add(TProfileStatistic.Create('Avg. Time (us)', FAverageMicroseconds.ToArray));
 end;
 
 procedure TStatisticsReport.SaveToStream(Stream: TStream);
