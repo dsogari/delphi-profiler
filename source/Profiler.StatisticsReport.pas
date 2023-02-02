@@ -12,7 +12,6 @@ type
 
   TStatisticsReport = class
     private
-      FReportPath: string;
       FReportLines: TStrings;
       FReportInfo: TList<TProfileStatistic>;
       FTotalCalls: TList<Double>;
@@ -22,12 +21,9 @@ type
     public
       constructor Create;
       destructor Destroy; override;
-      procedure Add(info: TProfileInfo);
+      procedure Add(const Info: TProfileInfo);
       procedure Compute;
-      procedure SaveToFile;
-
-    public
-      property ReportPath: string write FReportPath;
+      procedure SaveToStream(Stream: TStream);
   end;
 
 implementation
@@ -35,10 +31,10 @@ implementation
 constructor TStatisticsReport.Create;
 begin
   inherited;
-  FReportLines         := TStringList.Create;
-  FReportInfo          := TObjectList<TProfileStatistic>.Create;
-  FTotalCalls          := TList<Double>.Create;
-  FTotalMicroseconds   := TList<Double>.Create;
+  FReportLines := TStringList.Create;
+  FReportInfo := TObjectList<TProfileStatistic>.Create;
+  FTotalCalls := TList<Double>.Create;
+  FTotalMicroseconds := TList<Double>.Create;
   FAverageMicroseconds := TList<Double>.Create;
 end;
 
@@ -52,21 +48,22 @@ begin
   inherited;
 end;
 
-procedure TStatisticsReport.Add(info: TProfileInfo);
+procedure TStatisticsReport.Add(const Info: TProfileInfo);
 begin
-  FTotalCalls.Add(info.TotalCalls);
-  FTotalMicroseconds.Add(info.TotalMicroseconds);
-  FAverageMicroseconds.Add(info.AverageMicroseconds);
+  FTotalCalls.Add(Info.TotalCalls);
+  FTotalMicroseconds.Add(Info.TotalMicroseconds);
+  FAverageMicroseconds.Add(Info.AverageMicroseconds);
 end;
 
 procedure TStatisticsReport.Compute;
 begin
+  FReportInfo.Clear;
   FReportInfo.Add(TProfileStatistic.Create('Total Calls', FTotalCalls.ToArray));
   FReportInfo.Add(TProfileStatistic.Create('Total Time (us)', FTotalMicroseconds.ToArray));
   FReportInfo.Add(TProfileStatistic.Create('Average Time (us)', FAverageMicroseconds.ToArray));
 end;
 
-procedure TStatisticsReport.SaveToFile;
+procedure TStatisticsReport.SaveToStream(Stream: TStream);
 var
   statistic: TProfileStatistic;
 begin
@@ -74,7 +71,7 @@ begin
   FReportLines.Add(TProfileStatistic.CommaHeader);
   for statistic in FReportInfo do
     FReportLines.Add(statistic.CommaText);
-  FReportLines.SaveToFile(FReportPath);
+  FReportLines.SaveToStream(Stream);
 end;
 
 end.

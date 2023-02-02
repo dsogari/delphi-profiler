@@ -4,7 +4,8 @@
         <DCC_ExeOutput>..\build\$(Platform)\$(Config)\bin</DCC_ExeOutput>
         <DCC_BplOutput>..\build\$(Platform)\$(Config)\bin</DCC_BplOutput>
         <DCC_DcuOutput>..\build\$(Platform)\$(Config)\dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>..\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\source;..\modules\FastMM4;..\modules\Delphi-Mocks\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DUPLICATE_CTOR_DTOR>false</DCC_DUPLICATE_CTOR_DTOR>
     </PropertyGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>

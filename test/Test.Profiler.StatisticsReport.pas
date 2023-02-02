@@ -2,6 +2,88 @@ unit Test.Profiler.StatisticsReport;
 
 interface
 
+uses
+  DUnitX.TestFramework,
+  System.Classes,
+  Profiler.StatisticsReport,
+  Profiler.ProfileInfo;
+
+type
+
+  [TestFixture]
+  TStatisticsReportTest = class
+    private
+      FStatisticsReport: TStatisticsReport;
+      FProfileInfo: TProfileInfo;
+      FStream: TStringStream;
+      FStrings: TStrings;
+
+      procedure FillReport(const DelimitedInfos: string);
+
+    public
+      [Setup]
+      procedure Setup;
+      [TearDown]
+      procedure TearDown;
+
+      [Test]
+      [TestCase('Two infos', '1,2|3,4;' +
+            '"Measure","Mean","Median","Standard Deviation"|' +
+            '"Total Calls","2.000","2.000","1.414"|' +
+            '"Total Time (us)","0.300","0.300","0.141"|' +
+            '"Average Time (us)","0.167","0.167","0.047"', ';')]
+      procedure TestSaveToStream(const DelimitedInfos, DelimitedExpected: string);
+
+  end;
+
 implementation
+
+uses
+  System.SysUtils;
+
+{ TStatisticsReportTest }
+
+procedure TStatisticsReportTest.FillReport(const DelimitedInfos: string);
+var
+  Strings: TArray<string>;
+  S: string;
+begin
+  for S in DelimitedInfos.Split(['|']) do
+    begin
+      Strings := S.Split([',']);
+      FProfileInfo.TotalCalls := Strings[0].ToInt64;
+      FProfileInfo.TotalTicks := Strings[1].ToInt64;
+      FStatisticsReport.Add(FProfileInfo);
+    end;
+end;
+
+procedure TStatisticsReportTest.Setup;
+begin
+  FStatisticsReport := TStatisticsReport.Create;
+  FProfileInfo := TProfileInfo.Create('abc');
+  FStream := TStringStream.Create;
+  FStrings := TStringList.Create;
+  FStrings.Delimiter := '|';
+  FStrings.QuoteChar := #0;
+  FStrings.StrictDelimiter := True;
+end;
+
+procedure TStatisticsReportTest.TearDown;
+begin
+  FStatisticsReport.Free;
+  FProfileInfo.Free;
+  FStream.Free;
+  FStrings.Free;
+end;
+
+procedure TStatisticsReportTest.TestSaveToStream(const DelimitedInfos, DelimitedExpected: string);
+begin
+  FillReport(DelimitedInfos);
+  FStream.Clear;
+  FStatisticsReport.Compute;
+  FStatisticsReport.SaveToStream(FStream);
+  FStrings.DelimitedText := DelimitedExpected;
+  Assert.AreEqual(FStrings.Text, FStream.DataString);
+end;
 
 end.

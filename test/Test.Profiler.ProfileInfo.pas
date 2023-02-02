@@ -25,14 +25,17 @@ type
 
       [Test]
       [TestCase('Single call', '1;2;"abc","1","0.2","0.200"', ';')]
+      [TestCase('Two calls', '2;2;"abc","2","0.2","0.100"', ';')]
       procedure TestCommaText(TotalCalls, TotalTicks: Int64; const Expected: string);
 
       [Test]
       [TestCase('Single call', '1,2,0.2')]
+      [TestCase('Two calls', '2,2,0.2')]
       procedure TestTotalMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
 
       [Test]
       [TestCase('Single call', '1,2,0.2')]
+      [TestCase('Two calls', '2,2,0.1')]
       procedure TestAverageMicroseconds(TotalCalls, TotalTicks: Int64; Expected: Double);
   end;
 

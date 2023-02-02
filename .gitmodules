@@ -1,0 +1,6 @@
+[submodule "modules/FastMM4"]
+	path = modules/FastMM4
+	url = https://github.com/pleriche/FastMM4.git
+[submodule "modules/Delphi-Mocks"]
+	path = modules/Delphi-Mocks
+	url = https://github.com/VSoftTechnologies/Delphi-Mocks.git

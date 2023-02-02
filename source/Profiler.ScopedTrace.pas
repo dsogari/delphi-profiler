@@ -3,7 +3,7 @@ unit Profiler.ScopedTrace;
 interface
 
 uses
-  Profiler.DataTypes;
+  Profiler.Trace;
 
 type
 
@@ -11,9 +11,10 @@ type
     private
       FEventName: string;
       FEventType: TTraceEventType;
+      FTracer: ITracer;
 
-      class threadvar m_nElapsed: Int64;
-      class threadvar m_nStartTimeStamp: Int64;
+      class threadvar FElapsed: Int64;
+      class threadvar FStartTimeStamp: Int64;
 
     private { ITrace }
       function GetEventName: string;
@@ -26,8 +27,7 @@ type
       function _AddRef: Integer; stdcall;
       function _Release: Integer; stdcall;
 
-      constructor Create(const strScopeName: ShortString);
-      destructor Destroy; override;
+      constructor Create(const ScopeName: ShortString; Tracer: ITracer);
   end;
 
 implementation
@@ -37,41 +37,42 @@ uses
 
 class function TScopedTrace.NewInstance: TObject;
 begin
-  m_nElapsed := TStopwatch.GetTimeStamp - m_nStartTimeStamp;
-  Result     := inherited;
+  FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
+  Result := inherited;
 end;
 
 procedure TScopedTrace.FreeInstance;
 begin
   inherited;
-  m_nStartTimeStamp := TStopwatch.GetTimeStamp;
+  FStartTimeStamp := TStopwatch.GetTimeStamp;
 end;
 
 function TScopedTrace._AddRef: Integer;
 begin
-  Result              := inherited;
+  Result := inherited;
   if FRefCount = 1 then
-    m_nStartTimeStamp := TStopwatch.GetTimeStamp;
+    begin
+      FEventType := TTraceEventType.Enter;
+      FTracer.Log(Self); // refcount = 2
+      FStartTimeStamp := TStopwatch.GetTimeStamp;
+    end;
 end;
 
 function TScopedTrace._Release: Integer;
 begin
   if FRefCount = 1 then
-    m_nElapsed := TStopwatch.GetTimeStamp - m_nStartTimeStamp;
-  Result       := inherited;
+    begin
+      FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
+      FEventType := TTraceEventType.Leave;
+      FTracer.Log(Self); // refcount = 2
+    end;
+  Result := inherited;
 end;
 
-constructor TScopedTrace.Create(const strScopeName: ShortString);
+constructor TScopedTrace.Create(const ScopeName: ShortString; Tracer: ITracer);
 begin
-  FEventName := string(strScopeName);
-  FEventType := TTraceEventType.Enter;
-  GlobalTracer.Log(Self);
-end;
-
-destructor TScopedTrace.Destroy;
-begin
-  FEventType := TTraceEventType.Leave;
-  GlobalTracer.Log(Self);
+  FEventName := string(ScopeName);
+  FTracer := Tracer;
 end;
 
 function TScopedTrace.GetEventName: string;
@@ -86,7 +87,7 @@ end;
 
 function TScopedTrace.GetElapsedTicks: Int64;
 begin
-  Result := m_nElapsed;
+  Result := FElapsed;
 end;
 
 initialization

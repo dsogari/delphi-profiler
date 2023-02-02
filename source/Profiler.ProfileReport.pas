@@ -16,23 +16,19 @@ type
 
   TProfileReport = class
     private
-      FReportPath: string;
       FReportLines: TStrings;
       FReportInfo: TDictionary<string, TProfileInfo>;
       FStatistics: TStatisticsReport;
 
       function GetSortedEntries: TEntryArray;
-      procedure SaveReportToFile;
-      procedure SaveStatisticsToFile;
+      procedure SaveProfileToStream(Stream: TStream);
+      procedure SaveStatisticsToStream(Stream: TStream);
 
     public
       constructor Create;
       destructor Destroy; override;
       procedure Add(const FunctionName: string; elapsedTicks: Int64);
-      procedure SaveToFile;
-
-    public
-      property ReportPath: string write FReportPath;
+      procedure SaveToStream(ReportStream, StatisticsStream: TStream);
   end;
 
   TTotalTicksComparer = class(TComparer<TReportEntry>)
@@ -49,11 +45,9 @@ end;
 
 constructor TProfileReport.Create;
 begin
-  FReportLines           := TStringList.Create;
-  FReportInfo            := TObjectDictionary<string, TProfileInfo>.Create([doOwnsValues]);
-  FStatistics            := TStatisticsReport.Create;
-
-  FStatistics.ReportPath := 'stats.csv';
+  FReportLines := TStringList.Create;
+  FReportInfo := TObjectDictionary<string, TProfileInfo>.Create([doOwnsValues]);
+  FStatistics := TStatisticsReport.Create;
 end;
 
 destructor TProfileReport.Destroy;
@@ -64,13 +58,13 @@ begin
   inherited;
 end;
 
-procedure TProfileReport.SaveToFile;
+procedure TProfileReport.SaveToStream(ReportStream, StatisticsStream: TStream);
 begin
-  SaveReportToFile;
-  SaveStatisticsToFile;
+  SaveProfileToStream(ReportStream);
+  SaveStatisticsToStream(StatisticsStream);
 end;
 
-procedure TProfileReport.SaveReportToFile;
+procedure TProfileReport.SaveProfileToStream(Stream: TStream);
 var
   entry: TReportEntry;
 begin
@@ -78,26 +72,26 @@ begin
   FReportLines.Add(TProfileInfo.CommaHeader);
   for entry in GetSortedEntries do
     FReportLines.Add(entry.value.CommaText);
-  FReportLines.SaveToFile(FReportPath);
+  FReportLines.SaveToStream(Stream);
 end;
 
 function TProfileReport.GetSortedEntries: TEntryArray;
 var
   comparer: IComparer<TReportEntry>;
 begin
-  Result   := FReportInfo.ToArray;
+  Result := FReportInfo.ToArray;
   comparer := TTotalTicksComparer.Create;
   TArray.Sort<TReportEntry>(Result, comparer);
 end;
 
-procedure TProfileReport.SaveStatisticsToFile;
+procedure TProfileReport.SaveStatisticsToStream(Stream: TStream);
 var
   entry: TReportEntry;
 begin
   for entry in FReportInfo do
     FStatistics.Add(entry.value);
   FStatistics.Compute;
-  FStatistics.SaveToFile;
+  FStatistics.SaveToStream(Stream);
 end;
 
 procedure TProfileReport.Add(const FunctionName: string; elapsedTicks: Int64);

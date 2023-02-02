@@ -1,6 +1,7 @@
-unit Profiler.DataTypes;
+unit Profiler.Trace;
 
 {$SCOPEDENUMS ON}
+{$M+}
 
 interface
 
@@ -18,10 +19,10 @@ type
   end;
 
   ITracer = interface
-    procedure Log(trace: ITrace);
+    procedure Log(Trace: ITrace);
   end;
 
-function trace(const strScopeName: ShortString): ITrace;
+function Trace(const ScopeName: ShortString): ITrace; inline;
 
 var
   GlobalTracer: ITracer;
@@ -31,10 +32,12 @@ implementation
 uses
   Profiler.ScopedTrace;
 
-function trace(const strScopeName: ShortString): ITrace;
+function Trace(const ScopeName: ShortString): ITrace;
 begin
   if Assigned(GlobalTracer) then
-    Result := TScopedTrace.Create(strScopeName);
+    Result := TScopedTrace.Create(ScopeName, GlobalTracer)
+  else
+    Result := nil;
 end;
 
 end.

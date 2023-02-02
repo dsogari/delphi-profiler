@@ -14,7 +14,8 @@ type
       function GetAverageMicroseconds: Double;
 
     public
-      constructor Create(const FunctionName: string);
+      constructor Create(const FunctionName: string); overload;
+      constructor Create(const FunctionName: string; TotalCalls, TotalTicks: Int64); overload;
       class function CommaHeader: string;
       function CommaText: string;
 
@@ -36,18 +37,27 @@ begin
   FFunctionName := FunctionName;
 end;
 
+constructor TProfileInfo.Create(const FunctionName: string; TotalCalls, TotalTicks: Int64);
+begin
+  Create(FunctionName);
+  FTotalCalls := TotalCalls;
+  FTotalTicks := TotalTicks;
+end;
+
 class function TProfileInfo.CommaHeader: string;
 const
   headerFormat = '"%s","%s","%s","%s"';
 begin
-  Result := Format(headerFormat, ['Function', 'Total Calls', 'Total Time (us)', 'Average Time (us)']);
+  Result := Format(headerFormat, ['Function', 'Total Calls', 'Total Time (us)',
+      'Average Time (us)']);
 end;
 
 function TProfileInfo.CommaText: string;
 const
   textFormat = '"%s","%d","%.1f","%.3f"';
 begin
-  Result := Format(textFormat, [FFunctionName, FTotalCalls, TotalMicroseconds, AverageMicroseconds]);
+  Result := Format(textFormat, [FFunctionName, FTotalCalls, TotalMicroseconds,
+      AverageMicroseconds]);
 end;
 
 function TProfileInfo.GetTotalMicroseconds: Double;

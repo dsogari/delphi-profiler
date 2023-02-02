@@ -3,7 +3,7 @@ unit Profiler.ProfileTracer;
 interface
 
 uses
-  Profiler.DataTypes,
+  Profiler.Trace,
   Profiler.ProfileReport,
   System.Classes,
   System.SyncObjs,
@@ -23,46 +23,41 @@ type
       procedure HandleTraceLeave;
 
     private { ITracer }
-      procedure Log(trace: ITrace);
+      procedure Log(Trace: ITrace);
 
     public
       constructor Create;
       destructor Destroy; override;
+
+      property Report: TProfileReport read FProfileReport;
   end;
 
 implementation
 
 constructor TProfileTracer.Create;
 begin
-  FCriticalSection          := TCriticalSection.Create;
-  FCallStack                := TStack<string>.Create;
-  FProfileReport            := TProfileReport.Create;
-
-  FProfileReport.ReportPath := 'profile.csv';
+  FCriticalSection := TCriticalSection.Create;
+  FCallStack := TStack<string>.Create;
+  FProfileReport := TProfileReport.Create;
 end;
 
 destructor TProfileTracer.Destroy;
 begin
-  try
-    FProfileReport.SaveToFile;
-  except
-    // we cannot not raise in destructor
-  end;
   FProfileReport.Free;
   FCallStack.Free;
   FCriticalSection.Free;
   inherited;
 end;
 
-procedure TProfileTracer.Log(trace: ITrace);
+procedure TProfileTracer.Log(Trace: ITrace);
 begin
   FCriticalSection.Acquire;
   try
-    FTrace := trace;
+    FTrace := Trace;
     try
       HandleTrace;
     finally
-      FTrace := nil; // don't keep a reference here
+      FTrace := nil; // do not keep a reference here
     end;
   finally
     FCriticalSection.Release;
@@ -86,8 +81,8 @@ end;
 
 procedure TProfileTracer.HandleTraceLeave;
 begin
-  Assert(FCallStack.Count > 0);
-  Assert(FCallStack.Peek = FTrace.EventName);
+  Assert(FCallStack.Count > 0, 'The call stack must not be empty');
+  Assert(FCallStack.Peek = FTrace.EventName, 'Trying to leave the wrong function');
   FProfileReport.Add(FCallStack.Pop, FTrace.ElapsedTicks);
 end;
 
