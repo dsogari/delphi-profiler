@@ -13,8 +13,7 @@ type
       FEventType: TTraceEventType;
       FTracer: ITracer;
 
-      class threadvar FElapsed: Int64;
-      class threadvar FStartTimeStamp: Int64;
+      class threadvar FClockTicks: Int64;
       class constructor Create;
 
     private { ITrace }
@@ -28,7 +27,7 @@ type
       function _AddRef: Integer; stdcall;
       function _Release: Integer; stdcall;
 
-      constructor Create(const ScopeName: ShortString; Tracer: ITracer);
+      constructor Create(const ScopeName: string; Tracer: ITracer);
   end;
 
 implementation
@@ -43,15 +42,15 @@ end;
 
 class function TScopedTrace.NewInstance: TObject;
 begin
-  if FStartTimeStamp > 0 then // if start is zero, elapsed will be zero
-    FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
+  if FClockTicks > 0 then // if start is zero, elapsed will be zero
+    FClockTicks := TStopwatch.GetTimeStamp - FClockTicks;
   Result := inherited;
 end;
 
 procedure TScopedTrace.FreeInstance;
 begin
   inherited;
-  FStartTimeStamp := TStopwatch.GetTimeStamp;
+  FClockTicks := TStopwatch.GetTimeStamp;
 end;
 
 function TScopedTrace._AddRef: Integer;
@@ -61,7 +60,7 @@ begin
     begin
       FEventType := TTraceEventType.Enter;
       FTracer.Log(Self); // refcount will be 2
-      FStartTimeStamp := TStopwatch.GetTimeStamp;
+      FClockTicks := TStopwatch.GetTimeStamp;
     end;
 end;
 
@@ -69,14 +68,14 @@ function TScopedTrace._Release: Integer;
 begin
   if FRefCount = 1 then
     begin
-      FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
+      FClockTicks := TStopwatch.GetTimeStamp - FClockTicks;
       FEventType := TTraceEventType.Leave;
       FTracer.Log(Self); // refcount will be 2
     end;
   Result := inherited;
 end;
 
-constructor TScopedTrace.Create(const ScopeName: ShortString; Tracer: ITracer);
+constructor TScopedTrace.Create(const ScopeName: string; Tracer: ITracer);
 begin
   FScopeName := string(ScopeName);
   FTracer := Tracer;
@@ -94,7 +93,7 @@ end;
 
 function TScopedTrace.GetElapsedTicks: Int64;
 begin
-  Result := FElapsed;
+  Result := FClockTicks;
 end;
 
 end.

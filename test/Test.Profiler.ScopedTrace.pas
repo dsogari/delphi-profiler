@@ -14,7 +14,7 @@ type
     private
       FTracer: TMock<ITracer>;
 
-      function Trace(const ScopeName: ShortString): ITrace;
+      function Trace(const ScopeName: string): ITrace;
       class function CheckEventEnter(Trace: ITrace): Boolean;
       class function CheckEventLeave(Trace: ITrace): Boolean;
 
@@ -46,7 +46,7 @@ begin
   FTracer.Free;
 end;
 
-function TScopedTraceTest.Trace(const ScopeName: ShortString): ITrace;
+function TScopedTraceTest.Trace(const ScopeName: string): ITrace;
 begin
   Result := TScopedTrace.Create(ScopeName, FTracer);
 end;

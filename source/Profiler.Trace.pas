@@ -58,7 +58,7 @@ procedure SetTracingProfileFileName(const FileName: string);
 procedure SetTracingStatsFileName(const FileName: string);
 
 /// Generate a trace event
-function Trace(const ScopeName: ShortString): ITrace;
+function Trace(const ScopeName: string): ITrace;
 
 implementation
 
@@ -93,7 +93,7 @@ begin
   StatsFileName := FileName;
 end;
 
-function Trace(const ScopeName: ShortString): ITrace;
+function Trace(const ScopeName: string): ITrace;
 begin
   if Assigned(GlobalTracer) then
     Result := TScopedTrace.Create(ScopeName, GlobalTracer)
