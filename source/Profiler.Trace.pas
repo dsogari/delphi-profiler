@@ -30,18 +30,22 @@ type
 
 procedure SetTracer(Tracer: ITracer);
 procedure SetTracingScopeFilter(const Pattern: string);
-procedure SaveTracingProfileToFile(const FileName: string);
-procedure SaveTracingStatisticsToFile(const FileName: string);
+procedure SetTracingProfileFileName(const FileName: string);
+procedure SetTracingStatsFileName(const FileName: string);
+
 function Trace(const ScopeName: ShortString): ITrace;
 
 implementation
 
 uses
+  System.SysUtils,
   Profiler.ScopedTrace,
   Profiler.ProfileTracer;
 
 var
   GlobalTracer: ITracer;
+  ProfileFileName: string;
+  StatsFileName: string;
 
 procedure SetTracer(Tracer: ITracer);
 begin
@@ -52,6 +56,16 @@ procedure SetTracingScopeFilter(const Pattern: string);
 begin
   if Assigned(GlobalTracer) then
     GlobalTracer.SetScopeFilter(Pattern);
+end;
+
+procedure SetTracingProfileFileName(const FileName: string);
+begin
+  ProfileFileName := FileName;
+end;
+
+procedure SetTracingStatsFileName(const FileName: string);
+begin
+  StatsFileName := FileName;
 end;
 
 function Trace(const ScopeName: ShortString): ITrace;
@@ -74,7 +88,7 @@ begin
   end;
 end;
 
-procedure SaveTracingStatisticsToFile(const FileName: string);
+procedure SaveTracingStatsToFile(const FileName: string);
 var
   Stream: TStream;
 begin
@@ -86,13 +100,25 @@ begin
   end;
 end;
 
+procedure SaveReportsToFile;
+begin
+  try
+    SaveTracingProfileToFile(ProfileFileName);
+    SaveTracingStatsToFile(StatsFileName);
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+end;
+
 initialization
 
 SetTracer(TProfileTracer.Create);
+SetTracingProfileFileName('profile.csv');
+SetTracingStatsFileName('stats.csv');
 
 finalization
 
-SaveTracingProfileToFile('profile.csv');
-SaveTracingStatisticsToFile('stats.csv');
+SaveReportsToFile;
 
 end.
