@@ -9,7 +9,7 @@ type
 
   TScopedTrace = class(TInterfacedObject, ITrace)
     private
-      FEventName: string;
+      FScopeName: string;
       FEventType: TTraceEventType;
       FTracer: ITracer;
 
@@ -71,13 +71,13 @@ end;
 
 constructor TScopedTrace.Create(const ScopeName: ShortString; Tracer: ITracer);
 begin
-  FEventName := string(ScopeName);
+  FScopeName := string(ScopeName);
   FTracer := Tracer;
 end;
 
 function TScopedTrace.GetEventName: string;
 begin
-  Result := FEventName;
+  Result := FScopeName;
 end;
 
 function TScopedTrace.GetEventType: TTraceEventType;

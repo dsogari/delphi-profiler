@@ -5,6 +5,9 @@ unit Profiler.Trace;
 
 interface
 
+uses
+  System.Classes;
+
 type
 
   TTraceEventType = (Enter, Leave);
@@ -20,9 +23,15 @@ type
 
   ITracer = interface
     procedure Log(Trace: ITrace);
+    procedure SetScopeFilter(const Pattern: string);
+    procedure SaveProfileToStream(Stream: TStream);
+    procedure SaveStatisticsToStream(Stream: TStream);
   end;
 
-function Trace(const ScopeName: ShortString): ITrace; inline;
+function Trace(const ScopeName: ShortString): ITrace;
+procedure SetTracingScopeFilter(const Pattern: string);
+procedure SaveTracingProfileToFile(const FileName: string);
+procedure SaveTracingStatisticsToFile(const FileName: string);
 
 var
   GlobalTracer: ITracer;
@@ -30,7 +39,8 @@ var
 implementation
 
 uses
-  Profiler.ScopedTrace;
+  Profiler.ScopedTrace,
+  Profiler.ProfileTracer;
 
 function Trace(const ScopeName: ShortString): ITrace;
 begin
@@ -39,5 +49,38 @@ begin
   else
     Result := nil;
 end;
+
+procedure SetTracingScopeFilter(const Pattern: string);
+begin
+  GlobalTracer.SetScopeFilter(Pattern);
+end;
+
+procedure SaveTracingProfileToFile(const FileName: string);
+var
+  Stream: TStream;
+begin
+  Stream := TFileStream.Create(FileName, fmCreate);
+  try
+    GlobalTracer.SaveProfileToStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
+
+procedure SaveTracingStatisticsToFile(const FileName: string);
+var
+  Stream: TStream;
+begin
+  Stream := TFileStream.Create(FileName, fmCreate);
+  try
+    GlobalTracer.SaveStatisticsToStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
+
+initialization
+
+GlobalTracer := TProfileTracer.Create;
 
 end.

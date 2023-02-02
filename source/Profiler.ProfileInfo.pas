@@ -6,7 +6,7 @@ type
 
   TProfileInfo = class
     private
-      FFunctionName: string;
+      FScopeName: string;
       FTotalCalls: Int64;
       FTotalTicks: Int64;
 
@@ -14,8 +14,8 @@ type
       function GetAverageMicroseconds: Double;
 
     public
-      constructor Create(const FunctionName: string); overload;
-      constructor Create(const FunctionName: string; TotalCalls, TotalTicks: Int64); overload;
+      constructor Create(const ScopeName: string); overload;
+      constructor Create(const ScopeName: string; TotalCalls, TotalTicks: Int64); overload;
       class function CommaHeader: string;
       function CommaText: string;
 
@@ -32,32 +32,30 @@ uses
   System.SysUtils,
   System.Diagnostics;
 
-constructor TProfileInfo.Create(const FunctionName: string);
+constructor TProfileInfo.Create(const ScopeName: string);
 begin
-  FFunctionName := FunctionName;
+  FScopeName := ScopeName;
 end;
 
-constructor TProfileInfo.Create(const FunctionName: string; TotalCalls, TotalTicks: Int64);
+constructor TProfileInfo.Create(const ScopeName: string; TotalCalls, TotalTicks: Int64);
 begin
-  Create(FunctionName);
+  Create(ScopeName);
   FTotalCalls := TotalCalls;
   FTotalTicks := TotalTicks;
 end;
 
 class function TProfileInfo.CommaHeader: string;
 const
-  headerFormat = '"%s","%s","%s","%s"';
+  HeaderFormat = '"%s","%s","%s","%s"';
 begin
-  Result := Format(headerFormat, ['Function', 'Total Calls', 'Total Time (us)',
-      'Average Time (us)']);
+  Result := Format(HeaderFormat, ['Scope', 'Total Calls', 'Total Time (us)', 'Average Time (us)']);
 end;
 
 function TProfileInfo.CommaText: string;
 const
-  textFormat = '"%s","%d","%.1f","%.3f"';
+  TextFormat = '"%s","%d","%.1f","%.3f"';
 begin
-  Result := Format(textFormat, [FFunctionName, FTotalCalls, TotalMicroseconds,
-      AverageMicroseconds]);
+  Result := Format(TextFormat, [FScopeName, FTotalCalls, TotalMicroseconds, AverageMicroseconds]);
 end;
 
 function TProfileInfo.GetTotalMicroseconds: Double;

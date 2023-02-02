@@ -12,6 +12,9 @@
         <Projects Include="projects\ProfilerUnitTest.dproj">
             <Dependencies>projects\ProfilerPackage.dproj</Dependencies>
         </Projects>
+        <Projects Include="projects\ProfilerClientTest.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="ProfilerUnitTest:Make" DependsOnTargets="ProfilerPackage:Make">
         <MSBuild Projects="projects\ProfilerUnitTest.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ProfilerClientTest">
+        <MSBuild Projects="projects\ProfilerClientTest.dproj"/>
+    </Target>
+    <Target Name="ProfilerClientTest:Clean">
+        <MSBuild Projects="projects\ProfilerClientTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProfilerClientTest:Make">
+        <MSBuild Projects="projects\ProfilerClientTest.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ProfileViewer;ProfilerPackage;ProfilerUnitTest"/>
+        <CallTarget Targets="ProfileViewer;ProfilerPackage;ProfilerUnitTest;ProfilerClientTest"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ProfileViewer:Clean;ProfilerPackage:Clean;ProfilerUnitTest:Clean"/>
+        <CallTarget Targets="ProfileViewer:Clean;ProfilerPackage:Clean;ProfilerUnitTest:Clean;ProfilerClientTest:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ProfileViewer:Make;ProfilerPackage:Make;ProfilerUnitTest:Make"/>
+        <CallTarget Targets="ProfileViewer:Make;ProfilerPackage:Make;ProfilerUnitTest:Make;ProfilerClientTest:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

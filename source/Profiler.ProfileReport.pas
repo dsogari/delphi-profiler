@@ -21,14 +21,14 @@ type
       FStatistics: TStatisticsReport;
 
       function GetSortedEntries: TEntryArray;
-      procedure SaveProfileToStream(Stream: TStream);
-      procedure SaveStatisticsToStream(Stream: TStream);
 
     public
       constructor Create;
       destructor Destroy; override;
-      procedure Add(const FunctionName: string; elapsedTicks: Int64);
-      procedure SaveToStream(ReportStream, StatisticsStream: TStream);
+      procedure Add(const ScopeName: string; ElapsedTicks: Int64; IsEndOfCall: Boolean);
+      procedure Clear;
+      procedure SaveProfileToStream(Stream: TStream);
+      procedure SaveStatisticsToStream(Stream: TStream);
   end;
 
   TTotalTicksComparer = class(TComparer<TReportEntry>)
@@ -40,7 +40,12 @@ implementation
 
 function TTotalTicksComparer.Compare(const Left, Right: TReportEntry): Integer;
 begin
-  Result := Right.value.TotalTicks - Left.value.TotalTicks; // sort in descending order
+  Result := Right.Value.TotalTicks - Left.Value.TotalTicks; // sort in descending order
+end;
+
+procedure TProfileReport.Clear;
+begin
+  FReportInfo.Clear;
 end;
 
 constructor TProfileReport.Create;
@@ -58,50 +63,46 @@ begin
   inherited;
 end;
 
-procedure TProfileReport.SaveToStream(ReportStream, StatisticsStream: TStream);
-begin
-  SaveProfileToStream(ReportStream);
-  SaveStatisticsToStream(StatisticsStream);
-end;
-
 procedure TProfileReport.SaveProfileToStream(Stream: TStream);
 var
-  entry: TReportEntry;
+  Entry: TReportEntry;
 begin
   FReportLines.Clear;
   FReportLines.Add(TProfileInfo.CommaHeader);
-  for entry in GetSortedEntries do
-    FReportLines.Add(entry.value.CommaText);
+  for Entry in GetSortedEntries do
+    FReportLines.Add(Entry.Value.CommaText);
   FReportLines.SaveToStream(Stream);
 end;
 
 function TProfileReport.GetSortedEntries: TEntryArray;
 var
-  comparer: IComparer<TReportEntry>;
+  Comparer: IComparer<TReportEntry>;
 begin
   Result := FReportInfo.ToArray;
-  comparer := TTotalTicksComparer.Create;
-  TArray.Sort<TReportEntry>(Result, comparer);
+  Comparer := TTotalTicksComparer.Create;
+  TArray.Sort<TReportEntry>(Result, Comparer);
 end;
 
 procedure TProfileReport.SaveStatisticsToStream(Stream: TStream);
 var
-  entry: TReportEntry;
+  Entry: TReportEntry;
 begin
-  for entry in FReportInfo do
-    FStatistics.Add(entry.value);
+  FStatistics.Clear;
+  for Entry in FReportInfo do
+    FStatistics.Add(Entry.Value);
   FStatistics.Compute;
   FStatistics.SaveToStream(Stream);
 end;
 
-procedure TProfileReport.Add(const FunctionName: string; elapsedTicks: Int64);
+procedure TProfileReport.Add(const ScopeName: string; ElapsedTicks: Int64; IsEndOfCall: Boolean);
 begin
-  if not FReportInfo.ContainsKey(FunctionName) then
-    FReportInfo.Add(FunctionName, TProfileInfo.Create(FunctionName));
-  with FReportInfo[FunctionName] do
+  if not FReportInfo.ContainsKey(ScopeName) then
+    FReportInfo.Add(ScopeName, TProfileInfo.Create(ScopeName));
+  with FReportInfo[ScopeName] do
     begin
-      TotalTicks := TotalTicks + elapsedTicks;
-      TotalCalls := TotalCalls + 1;
+      TotalTicks := TotalTicks + ElapsedTicks;
+      if IsEndOfCall then
+        TotalCalls := TotalCalls + 1;
     end;
 end;
 

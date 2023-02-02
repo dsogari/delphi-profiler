@@ -29,6 +29,14 @@ type
       [Test]
       [TestCase('Two infos', '1,2|3,4;' +
             '"Measure","Mean","Median","Standard Deviation"|' +
+            '"Total Calls","NAN","NAN","NAN"|' +
+            '"Total Time (us)","NAN","NAN","NAN"|' +
+            '"Average Time (us)","NAN","NAN","NAN"', ';')]
+      procedure TestClear(const DelimitedInfos, DelimitedExpected: string);
+
+      [Test]
+      [TestCase('Two infos', '1,2|3,4;' +
+            '"Measure","Mean","Median","Standard Deviation"|' +
             '"Total Calls","2.000","2.000","1.414"|' +
             '"Total Time (us)","0.300","0.300","0.141"|' +
             '"Average Time (us)","0.167","0.167","0.047"', ';')]
@@ -76,11 +84,22 @@ begin
   FStrings.Free;
 end;
 
+procedure TStatisticsReportTest.TestClear(const DelimitedInfos, DelimitedExpected: string);
+begin
+  FillReport(DelimitedInfos);
+  FStatisticsReport.Clear;
+  FStatisticsReport.Compute;
+  FStream.Clear;
+  FStatisticsReport.SaveToStream(FStream);
+  FStrings.DelimitedText := DelimitedExpected;
+  Assert.AreEqual(FStrings.Text, FStream.DataString);
+end;
+
 procedure TStatisticsReportTest.TestSaveToStream(const DelimitedInfos, DelimitedExpected: string);
 begin
   FillReport(DelimitedInfos);
-  FStream.Clear;
   FStatisticsReport.Compute;
+  FStream.Clear;
   FStatisticsReport.SaveToStream(FStream);
   FStrings.DelimitedText := DelimitedExpected;
   Assert.AreEqual(FStrings.Text, FStream.DataString);

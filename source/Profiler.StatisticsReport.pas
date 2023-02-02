@@ -22,6 +22,7 @@ type
       constructor Create;
       destructor Destroy; override;
       procedure Add(const Info: TProfileInfo);
+      procedure Clear;
       procedure Compute;
       procedure SaveToStream(Stream: TStream);
   end;
@@ -53,6 +54,13 @@ begin
   FTotalCalls.Add(Info.TotalCalls);
   FTotalMicroseconds.Add(Info.TotalMicroseconds);
   FAverageMicroseconds.Add(Info.AverageMicroseconds);
+end;
+
+procedure TStatisticsReport.Clear;
+begin
+  FTotalCalls.Clear;
+  FTotalMicroseconds.Clear;
+  FAverageMicroseconds.Clear;
 end;
 
 procedure TStatisticsReport.Compute;

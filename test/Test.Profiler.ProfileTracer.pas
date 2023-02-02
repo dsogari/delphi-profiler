@@ -5,6 +5,7 @@ interface
 uses
   DUnitX.TestFramework,
   Delphi.Mocks,
+  System.Classes,
   Profiler.Trace;
 
 type
@@ -14,6 +15,11 @@ type
     private
       FTracer: ITracer;
       FTrace: TMock<ITrace>;
+      FStream: TStringStream;
+      FStrings: TStrings;
+
+      procedure SetupTrace(const DelimitedExpectedCalls: string);
+      procedure FeedTracer(const DelimitedTraceEvents: string);
 
     public
       [Setup]
@@ -22,9 +28,27 @@ type
       procedure TearDown;
 
       [Test]
-      [TestCase('Enter', 'abc,0,1;1,1,0', ';')]
-      [TestCase('Enter and leave', 'abc,0,1|abc,1,1;1,1,0|1,1,1', ';')]
-      procedure TestLog(const DelimitedTraceEvents, DelimitedExpectedCalls: string);
+      [TestCase('Enter', 'abc,0,1;2,1,0;' +
+            '"Scope","Total Calls","Total Time (us)","Average Time (us)"', ';')]
+      [TestCase('Enter and leave', 'abc,0,1|abc,1,1;4,2,1;' +
+            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"abc","1","0.1","0.100"', ';')]
+      [TestCase('Enter, enter and leave, leave', 'abc,0,1|def,0,2|def,1,3|abc,1,4;8,4,3;' +
+            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"abc","1","0.6","0.600"|' +
+            '"def","1","0.3","0.300"', ';')]
+      procedure TestLog(const DelimitedTraceEvents, DelimitedExpectedCalls,
+        DelimitedExpectedProfile: string);
+
+      [Test]
+      [TestCase('Select first', 'a.*;abc,0,1|def,0,2|def,1,3|abc,1,4;6,2,1;' +
+            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"abc","1","0.4","0.400"', ';')]
+      [TestCase('Select second', '^[^a]*;abc,0,1|def,0,2|def,1,3|abc,1,4;6,2,1;' +
+            '"Scope","Total Calls","Total Time (us)","Average Time (us)"|' +
+            '"def","1","0.3","0.300"', ';')]
+      procedure TestSetScopeFilter(const Pattern, DelimitedTraceEvents, DelimitedExpectedCalls,
+        DelimitedExpectedProfile: string);
 
   end;
 
@@ -42,44 +66,77 @@ begin
   FTracer := TProfileTracer.Create;
   FTrace := TMock<ITrace>.Create;
   FTrace.Setup.AllowRedefineBehaviorDefinitions := True;
+  FStream := TStringStream.Create;
+  FStrings := TStringList.Create;
+  FStrings.Delimiter := '|';
+  FStrings.QuoteChar := #0;
+  FStrings.StrictDelimiter := True;
+end;
+
+procedure TProfileTracerTest.SetupTrace(const DelimitedExpectedCalls: string);
+var
+  Strings: TArray<string>;
+begin
+  Strings := DelimitedExpectedCalls.Split([',']);
+  with FTrace.Setup do
+    begin
+      Expect.Exactly(Strings[0].ToInteger).When.GetEventName;
+      Expect.Exactly(Strings[1].ToInteger).When.GetEventType;
+      Expect.Exactly(Strings[2].ToInteger).When.GetElapsedTicks;
+    end;
+end;
+
+procedure TProfileTracerTest.FeedTracer(const DelimitedTraceEvents: string);
+var
+  TraceEvents: TArray<string>;
+  Strings: TArray<string>;
+  S: string;
+begin
+  TraceEvents := DelimitedTraceEvents.Split(['|']);
+  for S in TraceEvents do
+    begin
+      Strings := S.Split([',']);
+      with FTrace.Setup do
+        begin
+          WillReturn(Strings[0]).When.GetEventName;
+          WillReturn(TValue.From(TTraceEventType(Strings[1].ToInteger))).When.GetEventType;
+          WillReturn(Strings[2].ToInt64).When.GetElapsedTicks;
+        end;
+      FTracer.Log(FTrace);
+    end;
 end;
 
 procedure TProfileTracerTest.TearDown;
 begin
   FTracer := nil;
   FTrace.Free;
+  FStream.Free;
+  FStrings.Free;
 end;
 
-procedure TProfileTracerTest.TestLog(const DelimitedTraceEvents, DelimitedExpectedCalls: string);
-var
-  TraceEvents, ExpectedCalls, Strings: TArray<string>;
-  I: Integer;
+procedure TProfileTracerTest.TestLog(const DelimitedTraceEvents, DelimitedExpectedCalls,
+  DelimitedExpectedProfile: string);
 begin
-  TraceEvents := DelimitedTraceEvents.Split(['|']);
-  ExpectedCalls := DelimitedExpectedCalls.Split(['|']);
-  for I := Low(TraceEvents) to High(TraceEvents) do
-    begin
-      with FTrace.Setup do
-        begin
-          Strings := TraceEvents[I].Split([',']);
-          WillReturn(Strings[0]).When.GetEventName;
-          WillReturn(TValue.From(TTraceEventType(Strings[1].ToInteger))).When.GetEventType;
-          WillReturn(Strings[2].ToInt64).When.GetElapsedTicks;
+  SetupTrace(DelimitedExpectedCalls);
+  FeedTracer(DelimitedTraceEvents);
+  FStream.Clear;
+  FTracer.SaveProfileToStream(FStream);
+  FStrings.DelimitedText := DelimitedExpectedProfile;
+  Assert.AreEqual(FStrings.Text, FStream.DataString);
+  FTrace.VerifyAll;
+end;
 
-          Strings := ExpectedCalls[I].Split([',']);
-          Expect.Exactly(Strings[0].ToInteger).When.GetEventName;
-          Expect.Exactly(Strings[1].ToInteger).When.GetEventType;
-          Expect.Exactly(Strings[2].ToInteger).When.GetElapsedTicks;
-        end;
-
-      FTracer.Log(FTrace);
-    end;
-
-  Assert.WillNotRaise(
-      procedure
-    begin
-      FTrace.VerifyAll;
-    end);
+procedure TProfileTracerTest.TestSetScopeFilter(const Pattern, DelimitedTraceEvents,
+  DelimitedExpectedCalls, DelimitedExpectedProfile: string);
+begin
+  FTracer.SetScopeFilter(Pattern);
+  SetupTrace(DelimitedExpectedCalls);
+  FeedTracer(DelimitedTraceEvents);
+  FStream.Clear;
+  FTracer.SaveProfileToStream(FStream);
+  FStrings.DelimitedText := DelimitedExpectedProfile;
+  Assert.AreEqual(FStrings.Text, FStream.DataString);
+  FTrace.VerifyAll;
 end;
 
 end.

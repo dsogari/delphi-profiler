@@ -14,7 +14,7 @@ type
     private
       FTracer: TMock<ITracer>;
 
-      function Trace(const ScopeName: ShortString): ITrace; inline;
+      function Trace(const ScopeName: ShortString): ITrace;
 
     public
       [Setup]
