@@ -29,10 +29,10 @@ type
   end;
 
 procedure SetTracer(Tracer: ITracer);
-function Trace(const ScopeName: ShortString): ITrace;
 procedure SetTracingScopeFilter(const Pattern: string);
 procedure SaveTracingProfileToFile(const FileName: string);
 procedure SaveTracingStatisticsToFile(const FileName: string);
+function Trace(const ScopeName: ShortString): ITrace;
 
 implementation
 
@@ -48,17 +48,18 @@ begin
   GlobalTracer := Tracer;
 end;
 
+procedure SetTracingScopeFilter(const Pattern: string);
+begin
+  if Assigned(GlobalTracer) then
+    GlobalTracer.SetScopeFilter(Pattern);
+end;
+
 function Trace(const ScopeName: ShortString): ITrace;
 begin
   if Assigned(GlobalTracer) then
     Result := TScopedTrace.Create(ScopeName, GlobalTracer)
   else
     Result := nil;
-end;
-
-procedure SetTracingScopeFilter(const Pattern: string);
-begin
-  GlobalTracer.SetScopeFilter(Pattern);
 end;
 
 procedure SaveTracingProfileToFile(const FileName: string);
@@ -88,5 +89,10 @@ end;
 initialization
 
 SetTracer(TProfileTracer.Create);
+
+finalization
+
+SaveTracingProfileToFile('profile.csv');
+SaveTracingStatisticsToFile('stats.csv');
 
 end.

@@ -45,8 +45,6 @@ begin
   try
     for I := 1 to TotalCalls do
       Outter;
-    SaveTracingProfileToFile('profile.csv');
-    SaveTracingStatisticsToFile('stats.csv');
     Writeln('Outter elapsed (us): ', ((OutterElapsedUs - InnerElapsedUs) / TotalCalls).ToString);
     Writeln('Inner elapsed (us): ', (InnerElapsedUs / TotalCalls).ToString);
     ReadLn;

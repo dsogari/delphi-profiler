@@ -26,20 +26,18 @@ begin
 end;
 
 begin
-    for I := 1 to 10 do
-        Outter;
-    SaveTracingProfileToFile('profile.csv');
-    SaveTracingStatisticsToFile('stats.csv');
+  for I := 1 to 10 do
+    Outter;
 end.
 ```
 
-`profile.csv` (profile entries are sorted in descending order of total time):
+Output file `profile.csv` (entries are sorted in descending order of total time):
 
     "Scope","Total Calls","Total Time (us)","Avg. Time (us)"
     "Outter","10","2185955.30","218595.53"
     "Inner","10","1083201.10","108320.11"
 
-`stats.csv`:
+Output file `stats.csv`:
 
     "Measure","Mean","Median","Standard Dev."
     "Total Calls","10.00","10.00","0.00"
