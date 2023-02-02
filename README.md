@@ -56,13 +56,15 @@ end.
 
 Output file `profile.csv` (entries are sorted in descending order of total time):
 
-    "Scope","Total Calls","Total Time (us)","Avg. Time (us)"
-    "Outter","10","2185955.30","218595.53"
-    "Inner","10","1083201.10","108320.11"
+    "Scope Name","Total Calls","Total Time (us)","Avg. Time (us)"
+    "Innermost","8","1239718.80","154964.85"
+    "Inner","4","746702.50","186675.63"
+    "Outter","2","376405.50","188202.75"
+    "Outtermost","1","187056.80","187056.80"
 
 Output file `stats.csv`:
 
     "Measure","Mean","Median","Standard Dev."
-    "Total Calls","10.00","10.00","0.00"
-    "Total Time (us)","1634578.20","1634578.20","779764.97"
-    "Avg. Time (us)","163457.82","163457.82","77976.50"
+    "Total Calls","3.75","3.00","3.10"
+    "Total Time (us)","637470.90","561554.00","463918.84"
+    "Avg. Time (us)","179225.01","186866.21","16186.45"

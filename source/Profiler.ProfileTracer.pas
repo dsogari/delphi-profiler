@@ -56,7 +56,7 @@ begin
   Assert(Assigned(Trace));
   FCriticalSection.Acquire;
   try
-    if FScopeFilter.Match(Trace.EventName).Success then
+    if FScopeFilter.Match(Trace.ScopeName).Success then
       begin
         if Trace.EventType = TTraceEventType.Enter then
           HandleTraceEnter(Trace)
@@ -87,13 +87,13 @@ procedure TProfileTracer.HandleTraceEnter(const Trace: ITrace);
 begin
   if FCallStack.Count > 0 then
     FProfileReport.Add(FCallStack.Peek, Trace.ElapsedTicks, False);
-  FCallStack.Push(Trace.EventName);
+  FCallStack.Push(Trace.ScopeName);
 end;
 
 procedure TProfileTracer.HandleTraceLeave(const Trace: ITrace);
 begin
   Assert(FCallStack.Count > 0, 'The call stack must not be empty');
-  Assert(FCallStack.Peek = Trace.EventName, 'Trying to leave the wrong function');
+  Assert(FCallStack.Peek = Trace.ScopeName, 'Trying to leave the wrong scope');
   FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
 end;
 

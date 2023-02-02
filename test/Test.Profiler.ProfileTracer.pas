@@ -80,7 +80,7 @@ begin
   Strings := DelimitedExpectedCalls.Split([',']);
   with FTrace.Setup do
     begin
-      Expect.Exactly(Strings[0].ToInteger).When.GetEventName;
+      Expect.Exactly(Strings[0].ToInteger).When.GetScopeName;
       Expect.Exactly(Strings[1].ToInteger).When.GetEventType;
       Expect.Exactly(Strings[2].ToInteger).When.GetElapsedTicks;
     end;
@@ -98,7 +98,7 @@ begin
       Strings := S.Split([',']);
       with FTrace.Setup do
         begin
-          WillReturn(Strings[0]).When.GetEventName;
+          WillReturn(Strings[0]).When.GetScopeName;
           WillReturn(TValue.From(TTraceEventType(Strings[1].ToInteger))).When.GetEventType;
           WillReturn(Strings[2].ToInt64).When.GetElapsedTicks;
         end;

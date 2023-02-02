@@ -1,3 +1,4 @@
+/// This is the entrypoint unit for tracing
 unit Profiler.Trace;
 
 {$SCOPEDENUMS ON}
@@ -10,29 +11,53 @@ uses
 
 type
 
+  /// The type of trace event
   TTraceEventType = (Enter, Leave);
 
+  /// The trace event object
   ITrace = interface
-    function GetEventName: string;
+    /// The trace scope name
+    function GetScopeName: string;
+
+    /// The trace event type (entering or leaving a scope)
     function GetEventType: TTraceEventType;
+
+    /// The trace duration (in number of clock ticks)
     function GetElapsedTicks: Int64;
-    property EventName: string read GetEventName;
+
+    property ScopeName: string read GetScopeName;
     property EventType: TTraceEventType read GetEventType;
     property ElapsedTicks: Int64 read GetElapsedTicks;
   end;
 
+  /// The tracer object (keeps track of trace events)
   ITracer = interface
+    /// Log a trace event
     procedure Log(const Trace: ITrace);
+
+    /// Set a pattern for filtering scope names
     procedure SetScopeFilter(const Pattern: string);
+
+    /// Save the profile report to an output stream
     procedure SaveProfileToStream(Stream: TStream);
+
+    /// Save the statistics report to an output stream
     procedure SaveStatisticsToStream(Stream: TStream);
   end;
 
+/// Set the global tracer object
 procedure SetTracer(Tracer: ITracer);
+
+/// Set the filter of the global tracer
 procedure SetTracingScopeFilter(const Pattern: string);
+
+/// Set the filename for writing the profile report
 procedure SetTracingProfileFileName(const FileName: string);
+
+/// Set the filename for writing the statistics report
 procedure SetTracingStatsFileName(const FileName: string);
 
+/// Generate a trace event
 function Trace(const ScopeName: ShortString): ITrace;
 
 implementation

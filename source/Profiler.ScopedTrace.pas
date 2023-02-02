@@ -18,7 +18,7 @@ type
       class constructor Create;
 
     private { ITrace }
-      function GetEventName: string;
+      function GetScopeName: string;
       function GetEventType: TTraceEventType;
       function GetElapsedTicks: Int64;
 
@@ -82,7 +82,7 @@ begin
   FTracer := Tracer;
 end;
 
-function TScopedTrace.GetEventName: string;
+function TScopedTrace.GetScopeName: string;
 begin
   Result := FScopeName;
 end;
