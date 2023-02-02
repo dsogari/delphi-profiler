@@ -97,8 +97,4 @@ begin
   FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
 end;
 
-initialization
-
-GlobalTracer := TProfileTracer.Create;
-
 end.

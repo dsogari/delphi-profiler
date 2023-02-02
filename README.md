@@ -26,7 +26,6 @@ begin
 end;
 
 begin
-    EnableTracing;
     for I := 1 to 10 do
         Outter;
     SaveTracingProfileToFile('profile.csv');
