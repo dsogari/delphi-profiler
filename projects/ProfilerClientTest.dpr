@@ -6,48 +6,48 @@ program ProfilerClientTest;
 
 
 uses
-  System.Diagnostics,
-  System.TimeSpan,
   System.SysUtils,
   Profiler.Trace;
 
-var
-  I: Integer;
-  InnerElapsedUs: Double;
-  OutterElapsedUs: Double;
+procedure Innermost;
+begin
+  Trace('Innermost');
+  Sleep(150);
+end;
 
 procedure Inner;
-var
-  Stopwatch: TStopwatch;
 begin
   Trace('Inner');
-  Stopwatch := TStopwatch.StartNew;
-  Sleep(100);
-  InnerElapsedUs := InnerElapsedUs + Stopwatch.Elapsed.TotalMilliseconds * 1000;
+  Sleep(50);
+  Innermost;
+  Sleep(50);
+  Innermost;
+  Sleep(50);
 end;
 
 procedure Outter;
-var
-  Stopwatch: TStopwatch;
 begin
   Trace('Outter');
-  Stopwatch := TStopwatch.StartNew;
-  Sleep(100);
+  Sleep(50);
   Inner;
-  Sleep(100);
-  OutterElapsedUs := OutterElapsedUs + Stopwatch.Elapsed.TotalMilliseconds * 1000;
+  Sleep(50);
+  Inner;
+  Sleep(50);
 end;
 
-const
-  TotalCalls = 10;
+procedure Outtermost;
+begin
+  Trace('Outtermost');
+  Sleep(50);
+  Outter;
+  Sleep(50);
+  Outter;
+  Sleep(50);
+end;
 
 begin
   try
-    for I := 1 to TotalCalls do
-      Outter;
-    Writeln('Outter elapsed (us): ', ((OutterElapsedUs - InnerElapsedUs) / TotalCalls).ToString);
-    Writeln('Inner elapsed (us): ', (InnerElapsedUs / TotalCalls).ToString);
-    ReadLn;
+    Outtermost;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

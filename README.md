@@ -7,27 +7,50 @@ A tracing profiler for Delphi.
 ## Example
 
 ```delphi
+program ProfilerClientTest;
+
 uses
   System.SysUtils,
   Profiler.Trace;
 
+procedure Innermost;
+begin
+  Trace('Innermost');
+  Sleep(150);
+end;
+
 procedure Inner;
 begin
   Trace('Inner');
-  Sleep(100);
+  Sleep(50);
+  Innermost;
+  Sleep(50);
+  Innermost;
+  Sleep(50);
 end;
 
 procedure Outter;
 begin
   Trace('Outter');
-  Sleep(100);
+  Sleep(50);
   Inner;
-  Sleep(100);
+  Sleep(50);
+  Inner;
+  Sleep(50);
+end;
+
+procedure Outtermost;
+begin
+  Trace('Outtermost');
+  Sleep(50);
+  Outter;
+  Sleep(50);
+  Outter;
+  Sleep(50);
 end;
 
 begin
-  for I := 1 to 10 do
-    Outter;
+  Outtermost;
 end.
 ```
 
