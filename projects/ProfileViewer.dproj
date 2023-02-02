@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>ProfileViewer.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -152,13 +152,13 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\build\Win32\Debug\bin\ProfileViewer.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\build\Win32\Release\bin\ProfileViewer.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ProfileViewer.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\build\Win32\Release\bin\ProfileViewer.exe" Configuration="Release" Class="ProjectOutput">
+                <DeployFile LocalName="..\build\Win32\Debug\bin\ProfileViewer.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ProfileViewer.exe</RemoteName>
                         <Overwrite>true</Overwrite>

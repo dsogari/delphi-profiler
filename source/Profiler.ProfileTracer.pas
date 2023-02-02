@@ -14,18 +14,16 @@ type
 
   TProfileTracer = class(TInterfacedObject, ITracer)
     private
-      FTrace: ITrace;
       FCallStack: TStack<string>;
       FProfileReport: TProfileReport;
       FCriticalSection: TCriticalSection;
       FScopeFilter: TRegEx;
 
-      procedure HandleTrace;
-      procedure HandleTraceEnter;
-      procedure HandleTraceLeave;
+      procedure HandleTraceEnter(const Trace: ITrace);
+      procedure HandleTraceLeave(const Trace: ITrace);
 
     private { ITracer }
-      procedure Log(Trace: ITrace);
+      procedure Log(const Trace: ITrace);
       procedure SetScopeFilter(const Pattern: string);
       procedure SaveProfileToStream(Stream: TStream);
       procedure SaveStatisticsToStream(Stream: TStream);
@@ -53,21 +51,21 @@ begin
   inherited;
 end;
 
-procedure TProfileTracer.Log(Trace: ITrace);
+procedure TProfileTracer.Log(const Trace: ITrace);
 begin
   Assert(Assigned(Trace));
   FCriticalSection.Acquire;
-  if FScopeFilter.Match(Trace.EventName).Success then
-    try
-      FTrace := Trace;
-      try
-        HandleTrace;
-      finally
-        FTrace := nil; // do not keep a reference here
+  try
+    if FScopeFilter.Match(Trace.EventName).Success then
+      begin
+        if Trace.EventType = TTraceEventType.Enter then
+          HandleTraceEnter(Trace)
+        else
+          HandleTraceLeave(Trace);
       end;
-    finally
-      FCriticalSection.Release;
-    end;
+  finally
+    FCriticalSection.Release;
+  end;
 end;
 
 procedure TProfileTracer.SaveProfileToStream(Stream: TStream);
@@ -85,26 +83,18 @@ begin
   FScopeFilter := TRegEx.Create(Pattern);
 end;
 
-procedure TProfileTracer.HandleTrace;
-begin
-  if FTrace.EventType = TTraceEventType.Enter then
-    HandleTraceEnter
-  else
-    HandleTraceLeave;
-end;
-
-procedure TProfileTracer.HandleTraceEnter;
+procedure TProfileTracer.HandleTraceEnter(const Trace: ITrace);
 begin
   if FCallStack.Count > 0 then
-    FProfileReport.Add(FCallStack.Peek, FTrace.ElapsedTicks, False);
-  FCallStack.Push(FTrace.EventName);
+    FProfileReport.Add(FCallStack.Peek, Trace.ElapsedTicks, False);
+  FCallStack.Push(Trace.EventName);
 end;
 
-procedure TProfileTracer.HandleTraceLeave;
+procedure TProfileTracer.HandleTraceLeave(const Trace: ITrace);
 begin
   Assert(FCallStack.Count > 0, 'The call stack must not be empty');
-  Assert(FCallStack.Peek = FTrace.EventName, 'Trying to leave the wrong function');
-  FProfileReport.Add(FCallStack.Pop, FTrace.ElapsedTicks, True);
+  Assert(FCallStack.Peek = Trace.EventName, 'Trying to leave the wrong function');
+  FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
 end;
 
 initialization

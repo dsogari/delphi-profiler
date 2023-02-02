@@ -22,7 +22,7 @@ type
   end;
 
   ITracer = interface
-    procedure Log(Trace: ITrace);
+    procedure Log(const Trace: ITrace);
     procedure SetScopeFilter(const Pattern: string);
     procedure SaveProfileToStream(Stream: TStream);
     procedure SaveStatisticsToStream(Stream: TStream);

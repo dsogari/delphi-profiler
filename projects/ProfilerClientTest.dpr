@@ -12,14 +12,15 @@ uses
 procedure Inner;
 begin
   Trace('Inner');
-  Sleep(100 + Random(10));
+  Sleep(100);
 end;
 
 procedure Outter;
 begin
   Trace('Outter');
-  Sleep(100 + Random(10));
+  Sleep(100);
   Inner;
+  Sleep(100);
 end;
 
 var
@@ -27,7 +28,7 @@ var
 begin
   try
     Randomize;
-    SetTracingScopeFilter('O.*');
+//    SetTracingScopeFilter('O.*');
     for I := 0 to Random(10) do
       Outter;
     SaveTracingProfileToFile('profile.csv');

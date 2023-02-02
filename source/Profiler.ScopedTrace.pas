@@ -37,7 +37,7 @@ uses
 
 class function TScopedTrace.NewInstance: TObject;
 begin
-  if FStartTimeStamp > 0 then
+  if FStartTimeStamp > 0 then // if start is zero, elapsed will be zero
     FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
   Result := inherited;
 end;
@@ -54,7 +54,7 @@ begin
   if FRefCount = 1 then
     begin
       FEventType := TTraceEventType.Enter;
-      FTracer.Log(Self); // refcount = 2
+      FTracer.Log(Self); // refcount will be 2
       FStartTimeStamp := TStopwatch.GetTimeStamp;
     end;
 end;
@@ -65,7 +65,7 @@ begin
     begin
       FElapsed := TStopwatch.GetTimeStamp - FStartTimeStamp;
       FEventType := TTraceEventType.Leave;
-      FTracer.Log(Self); // refcount = 2
+      FTracer.Log(Self); // refcount will be 2
     end;
   Result := inherited;
 end;

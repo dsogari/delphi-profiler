@@ -13,7 +13,7 @@
             <Dependencies>projects\ProfilerPackage.dproj</Dependencies>
         </Projects>
         <Projects Include="projects\ProfilerClientTest.dproj">
-            <Dependencies/>
+            <Dependencies>projects\ProfilerPackage.dproj</Dependencies>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -50,13 +50,13 @@
     <Target Name="ProfilerUnitTest:Make" DependsOnTargets="ProfilerPackage:Make">
         <MSBuild Projects="projects\ProfilerUnitTest.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ProfilerClientTest">
+    <Target Name="ProfilerClientTest" DependsOnTargets="ProfilerPackage">
         <MSBuild Projects="projects\ProfilerClientTest.dproj"/>
     </Target>
-    <Target Name="ProfilerClientTest:Clean">
+    <Target Name="ProfilerClientTest:Clean" DependsOnTargets="ProfilerPackage:Clean">
         <MSBuild Projects="projects\ProfilerClientTest.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ProfilerClientTest:Make">
+    <Target Name="ProfilerClientTest:Make" DependsOnTargets="ProfilerPackage:Make">
         <MSBuild Projects="projects\ProfilerClientTest.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
