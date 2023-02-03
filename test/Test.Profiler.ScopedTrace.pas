@@ -14,7 +14,7 @@ type
     private
       FTracer: TMock<ITracer>;
 
-      function Trace(const ScopeName: string): ITrace;
+      function Trace(const ScopeName: string; IsLongLived: Boolean): ITrace;
       class function CheckEventEnter(Trace: ITrace): Boolean;
       class function CheckEventLeave(Trace: ITrace): Boolean;
 
@@ -25,10 +25,13 @@ type
       procedure TearDown;
 
       [Test]
-      [TestCase('Once', '1')]
-      [TestCase('Twice', '2')]
-      [TestCase('Hundred times', '100')]
-      procedure TestTrace(Times: Integer);
+      [TestCase('Once', '1,False')]
+      [TestCase('Twice', '2,False')]
+      [TestCase('Hundred times', '100,False')]
+      [TestCase('Once (long-lived)', '1,True')]
+      [TestCase('Twice (long-lived', '2,True')]
+      [TestCase('Hundred times (long-lived', '100,True')]
+      procedure TestTrace(Times: Integer; IsLongLived: Boolean);
   end;
 
 implementation
@@ -46,9 +49,9 @@ begin
   FTracer.Free;
 end;
 
-function TScopedTraceTest.Trace(const ScopeName: string): ITrace;
+function TScopedTraceTest.Trace(const ScopeName: string; IsLongLived: Boolean): ITrace;
 begin
-  Result := TScopedTrace.Create(ScopeName, FTracer);
+  Result := TScopedTrace.Create(FTracer, ScopeName, IsLongLived);
 end;
 
 class function TScopedTraceTest.CheckEventEnter(Trace: ITrace): Boolean;
@@ -62,7 +65,7 @@ begin
     (Trace.EventType = TTraceEventType.Leave) and (Trace.ElapsedTicks < 5);
 end;
 
-procedure TScopedTraceTest.TestTrace(Times: Integer);
+procedure TScopedTraceTest.TestTrace(Times: Integer; IsLongLived: Boolean);
 var
   I: Integer;
 begin
@@ -73,7 +76,7 @@ begin
     end;
 
   for I := 1 to Times do
-    Trace('TScopedTraceTest.TestTrace');
+    Trace('Test', IsLongLived);
 
   Assert.WillNotRaise(
       procedure

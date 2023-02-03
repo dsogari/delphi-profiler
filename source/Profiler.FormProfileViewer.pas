@@ -178,7 +178,7 @@ procedure TFormProfileViewer.AutoSizeGrid(Grid: TStringGrid);
 const
   ColWidthMin  = 10;
   ColWidthPad  = 10;
-  GridWidthPad = 10;
+  GridWidthPad = 25;
 var
   Col, Row, TextWidth, ColWidthMax, GridWidth: Integer;
 begin

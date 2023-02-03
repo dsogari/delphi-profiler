@@ -13,10 +13,15 @@ uses
   System.SysUtils,
   Profiler.Trace;
 
+var
+  LongLived: ITrace;
+
 procedure Innermost;
 begin
   Trace('Innermost');
-  Sleep(150);
+  Sleep(50);
+  LongLived := nil;
+  Sleep(100);
 end;
 
 procedure Inner;
@@ -43,6 +48,7 @@ procedure Outtermost;
 begin
   Trace('Outtermost');
   Sleep(50);
+  Trace('LongLived', LongLived);
   Outter;
   Sleep(50);
   Outter;
@@ -57,14 +63,15 @@ end.
 Output file `profile.csv` (entries are sorted in descending order of total time):
 
     "Scope Name","Total Calls","Total Time (us)","Avg. Time (us)"
-    "Innermost","8","1239718.80","154964.85"
-    "Inner","4","746702.50","186675.63"
-    "Outter","2","376405.50","188202.75"
-    "Outtermost","1","187056.80","187056.80"
+    "Innermost","8","1358899.90","169862.49"
+    "Inner","4","746657.20","186664.30"
+    "Outter","2","363359.80","181679.90"
+    "Outtermost","1","183030.00","183030.00"
+    "LongLived","1","179745.10","179745.10"
 
 Output file `stats.csv`:
 
     "Measure","Mean","Median","Standard Dev."
-    "Total Calls","3.75","3.00","3.10"
-    "Total Time (us)","637470.90","561554.00","463918.84"
-    "Avg. Time (us)","179225.01","186866.21","16186.45"
+    "Total Calls","3.20","2.00","2.95"
+    "Total Time (us)","566338.40","363359.80","499561.96"
+    "Avg. Time (us)","180196.36","181679.90","6305.89"

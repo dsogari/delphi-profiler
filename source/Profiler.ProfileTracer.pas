@@ -85,16 +85,25 @@ end;
 
 procedure TProfileTracer.HandleTraceEnter(const Trace: ITrace);
 begin
-  if FCallStack.Count > 0 then
-    FProfileReport.Add(FCallStack.Peek, Trace.ElapsedTicks, False);
-  FCallStack.Push(Trace.ScopeName);
+  if not Trace.IsLongLived then
+    begin
+      if FCallStack.Count > 0 then
+        FProfileReport.Add(FCallStack.Peek, Trace.ElapsedTicks, False);
+      FCallStack.Push(Trace.ScopeName);
+    end;
 end;
 
 procedure TProfileTracer.HandleTraceLeave(const Trace: ITrace);
 begin
-  Assert(FCallStack.Count > 0, 'The call stack must not be empty');
-  Assert(FCallStack.Peek = Trace.ScopeName, 'Trying to leave the wrong scope');
-  FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
+  if Trace.IsLongLived then
+    FProfileReport.Add(Trace.ScopeName, Trace.ElapsedTicks, True)
+  else
+    begin
+      Assert(FCallStack.Count > 0, 'The call stack must not be empty');
+      Assert(FCallStack.Peek = Trace.ScopeName,
+        'Trying to leave the wrong scope. Maybe this should be a long-lived trace event?');
+      FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
+    end;
 end;
 
 end.

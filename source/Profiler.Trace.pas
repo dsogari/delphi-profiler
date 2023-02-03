@@ -16,14 +16,17 @@ type
 
   /// The trace event object
   ITrace = interface
-    /// The trace scope name
+    /// Returns the trace scope name
     function GetScopeName: string;
 
-    /// The trace event type (entering or leaving a scope)
+    /// Returns the trace event type (entering or leaving a scope)
     function GetEventType: TTraceEventType;
 
-    /// The trace duration (in number of clock ticks)
+    /// Returns the trace duration (in number of clock ticks)
     function GetElapsedTicks: Int64;
+
+    /// Returns true if the trace event is long-lived (instead of block-scoped)
+    function IsLongLived: Boolean;
 
     property ScopeName: string read GetScopeName;
     property EventType: TTraceEventType read GetEventType;
@@ -57,8 +60,11 @@ procedure SetTracingProfileFileName(const FileName: string);
 /// Set the filename for writing the statistics report
 procedure SetTracingStatsFileName(const FileName: string);
 
-/// Generate a trace event
-function Trace(const ScopeName: string): ITrace;
+/// Generate a block-scoped trace event
+function Trace(const ScopeName: string): ITrace; overload;
+
+/// Generate a long-lived trace event
+procedure Trace(const ScopeName: string; out Trace: ITrace); overload;
 
 implementation
 
@@ -96,9 +102,17 @@ end;
 function Trace(const ScopeName: string): ITrace;
 begin
   if Assigned(GlobalTracer) then
-    Result := TScopedTrace.Create(ScopeName, GlobalTracer)
+    Result := TScopedTrace.Create(GlobalTracer, ScopeName, False)
   else
     Result := nil;
+end;
+
+procedure Trace(const ScopeName: string; out Trace: ITrace);
+begin
+  if Assigned(GlobalTracer) then
+    Trace := TScopedTrace.Create(GlobalTracer, ScopeName, True)
+  else
+    Trace := nil;
 end;
 
 procedure SaveTracingProfileToFile(const FileName: string);
