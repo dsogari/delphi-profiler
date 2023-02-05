@@ -14,29 +14,39 @@ type
   /// The type of trace event
   TTraceEventType = (Enter, Leave);
 
+  /// The trace event information
+  TTraceInfo = record
+    /// The trace unique ID
+    FTraceID: Int64;
+
+    /// The trace scope name
+    FScopeName: string;
+
+    /// The trace event type (entering or leaving a scope)
+    FEventType: TTraceEventType;
+
+    /// The trace duration (in number of clock ticks)
+    FElapsedTicks: Int64;
+
+    /// True if the trace event is long-lived (instead of block-scoped)
+    FIsLongLived: Boolean;
+  end;
+
   /// The trace event object
   ITrace = interface
-    /// Returns the trace scope name
-    function GetScopeName: string;
+    /// Returns the trace event information
+    function GetInfo: TTraceInfo;
 
-    /// Returns the trace event type (entering or leaving a scope)
-    function GetEventType: TTraceEventType;
-
-    /// Returns the trace duration (in number of clock ticks)
-    function GetElapsedTicks: Int64;
-
-    /// Returns true if the trace event is long-lived (instead of block-scoped)
-    function IsLongLived: Boolean;
-
-    property ScopeName: string read GetScopeName;
-    property EventType: TTraceEventType read GetEventType;
-    property ElapsedTicks: Int64 read GetElapsedTicks;
+    property Info: TTraceInfo read GetInfo;
   end;
 
   /// The tracer object (keeps track of trace events)
   ITracer = interface
+    /// Clear the trace event history
+    procedure ClearHistory;
+
     /// Log a trace event
-    procedure Log(const Trace: ITrace);
+    procedure Log(const Info: TTraceInfo);
 
     /// Set a pattern for filtering scope names
     procedure SetScopeFilter(const Pattern: string);
@@ -48,116 +58,45 @@ type
     procedure SaveStatisticsToStream(Stream: TStream);
   end;
 
-/// Set the global tracer object
-procedure SetTracer(Tracer: ITracer);
+/// Set a pattern to filter scope names in the default profile
+procedure SetScopeFilter(const Pattern: string);
 
-/// Set the filter of the global tracer
-procedure SetTracingScopeFilter(const Pattern: string);
-
-/// Set the filename for writing the profile report
-procedure SetTracingProfileFileName(const FileName: string);
-
-/// Set the filename for writing the statistics report
-procedure SetTracingStatsFileName(const FileName: string);
-
-/// Generate a block-scoped trace event
+/// Generate a block-scoped trace event in the default profile
 function Trace(const ScopeName: string): ITrace; overload;
 
-/// Generate a long-lived trace event
+/// Generate a long-lived trace event in the default profile
 procedure Trace(const ScopeName: string; out Trace: ITrace); overload;
 
 implementation
 
 uses
-  System.SysUtils,
-  Profiler.ScopedTrace,
-  Profiler.ProfileTracer;
+  Profiler.Profile;
 
 var
-  GlobalTracer: ITracer;
-  ProfileFileName: string;
-  StatsFileName: string;
+  DefaultProfile: TProfile;
 
-procedure SetTracer(Tracer: ITracer);
+procedure InitializeDefaultProfile;
 begin
-  GlobalTracer := Tracer;
+  if not Assigned(DefaultProfile) then
+    DefaultProfile := TProfile.Create('default');
 end;
 
-procedure SetTracingScopeFilter(const Pattern: string);
+procedure SetScopeFilter(const Pattern: string);
 begin
-  if Assigned(GlobalTracer) then
-    GlobalTracer.SetScopeFilter(Pattern);
-end;
-
-procedure SetTracingProfileFileName(const FileName: string);
-begin
-  ProfileFileName := FileName;
-end;
-
-procedure SetTracingStatsFileName(const FileName: string);
-begin
-  StatsFileName := FileName;
+  InitializeDefaultProfile;
+  DefaultProfile.SetScopeFilter(Pattern);
 end;
 
 function Trace(const ScopeName: string): ITrace;
 begin
-  if Assigned(GlobalTracer) then
-    Result := TScopedTrace.Create(GlobalTracer, ScopeName, False)
-  else
-    Result := nil;
+  InitializeDefaultProfile;
+  Result := DefaultProfile.Trace(ScopeName);
 end;
 
 procedure Trace(const ScopeName: string; out Trace: ITrace);
 begin
-  if Assigned(GlobalTracer) then
-    Trace := TScopedTrace.Create(GlobalTracer, ScopeName, True)
-  else
-    Trace := nil;
+  InitializeDefaultProfile;
+  DefaultProfile.Trace(ScopeName, Trace);
 end;
-
-procedure SaveTracingProfileToFile(const FileName: string);
-var
-  Stream: TStream;
-begin
-  Stream := TFileStream.Create(FileName, fmCreate);
-  try
-    GlobalTracer.SaveProfileToStream(Stream);
-  finally
-    Stream.Free;
-  end;
-end;
-
-procedure SaveTracingStatsToFile(const FileName: string);
-var
-  Stream: TStream;
-begin
-  Stream := TFileStream.Create(FileName, fmCreate);
-  try
-    GlobalTracer.SaveStatisticsToStream(Stream);
-  finally
-    Stream.Free;
-  end;
-end;
-
-procedure SaveReportsToFile;
-begin
-  try
-    SaveTracingProfileToFile(ProfileFileName);
-    SaveTracingStatsToFile(StatsFileName);
-  except
-    on E: Exception do
-      Writeln(E.ClassName, ': ', E.Message);
-  end;
-end;
-
-initialization
-
-SetTracer(TProfileTracer.Create);
-SetTracingProfileFileName('profile.csv');
-SetTracingStatsFileName('stats.csv');
-
-finalization
-
-SaveReportsToFile;
 
 end.

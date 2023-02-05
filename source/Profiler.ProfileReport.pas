@@ -95,15 +95,15 @@ begin
 end;
 
 procedure TProfileReport.Add(const ScopeName: string; ElapsedTicks: Int64; IsEndOfCall: Boolean);
+var
+  Info: TProfileInfo;
 begin
-  if not FReportInfo.ContainsKey(ScopeName) then
-    FReportInfo.Add(ScopeName, TProfileInfo.Create(ScopeName));
-  with FReportInfo[ScopeName] do
+  if not FReportInfo.TryGetValue(ScopeName, Info) then
     begin
-      TotalTicks := TotalTicks + ElapsedTicks;
-      if IsEndOfCall then
-        TotalCalls := TotalCalls + 1;
+      Info := TProfileInfo.Create(ScopeName);
+      FReportInfo.Add(ScopeName, Info);
     end;
+  Info.Add(ElapsedTicks, IsEndOfCall);
 end;
 
 end.

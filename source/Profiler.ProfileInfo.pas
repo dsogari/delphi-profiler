@@ -16,6 +16,7 @@ type
     public
       constructor Create(const ScopeName: string); overload;
       constructor Create(const ScopeName: string; TotalCalls, TotalTicks: Int64); overload;
+      procedure Add(ElapsedTicks: Int64; IsEndOfCall: Boolean);
       class function CommaHeader: string;
       function CommaText: string;
 
@@ -44,11 +45,19 @@ begin
   FTotalTicks := TotalTicks;
 end;
 
+procedure TProfileInfo.Add(ElapsedTicks: Int64; IsEndOfCall: Boolean);
+begin
+  Inc(FTotalTicks, ElapsedTicks);
+  if IsEndOfCall then
+    Inc(FTotalCalls);
+end;
+
 class function TProfileInfo.CommaHeader: string;
 const
   HeaderFormat = '"%s","%s","%s","%s"';
 begin
-  Result := Format(HeaderFormat, ['Scope Name', 'Total Calls', 'Total Time (us)', 'Avg. Time (us)']);
+  Result := Format(HeaderFormat, ['Scope Name', 'Total Calls', 'Total Time (us)',
+      'Avg. Time (us)']);
 end;
 
 function TProfileInfo.CommaText: string;

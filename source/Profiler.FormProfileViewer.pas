@@ -154,8 +154,8 @@ end;
 
 procedure TFormProfileViewer.HandleCreate(Sender: TObject);
 begin
-  LoadGridFromFile(ProfileGrid, 'profile.csv');
-  LoadGridFromFile(StatsGrid, 'stats.csv');
+  LoadGridFromFile(ProfileGrid, 'default-profile.csv');
+  LoadGridFromFile(StatsGrid, 'default-stats.csv');
   InitializeMeansAdsStddevs;
 end;
 

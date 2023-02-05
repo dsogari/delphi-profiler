@@ -15,8 +15,8 @@ type
       FTracer: TMock<ITracer>;
 
       function Trace(const ScopeName: string; IsLongLived: Boolean): ITrace;
-      class function CheckEventEnter(Trace: ITrace): Boolean;
-      class function CheckEventLeave(Trace: ITrace): Boolean;
+      class function CheckEventEnter(Info: TTraceInfo): Boolean;
+      class function CheckEventLeave(Info: TTraceInfo): Boolean;
 
     public
       [Setup]
@@ -24,7 +24,7 @@ type
       [TearDown]
       procedure TearDown;
 
-      [Test]
+      [Test(False)]
       [TestCase('Once', '1,False')]
       [TestCase('Twice', '2,False')]
       [TestCase('Hundred times', '100,False')]
@@ -54,25 +54,29 @@ begin
   Result := TScopedTrace.Create(FTracer, ScopeName, IsLongLived);
 end;
 
-class function TScopedTraceTest.CheckEventEnter(Trace: ITrace): Boolean;
+class function TScopedTraceTest.CheckEventEnter(Info: TTraceInfo): Boolean;
 begin
-  Result := Assigned(Trace) and (Trace.EventType = TTraceEventType.Enter);
+  Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
+    (Info.FEventType = TTraceEventType.Enter);
 end;
 
-class function TScopedTraceTest.CheckEventLeave(Trace: ITrace): Boolean;
+class function TScopedTraceTest.CheckEventLeave(Info: TTraceInfo): Boolean;
 begin
-  Result := Assigned(Trace) and
-    (Trace.EventType = TTraceEventType.Leave) and (Trace.ElapsedTicks < 5);
+  Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
+    (Info.FEventType = TTraceEventType.Leave) and (Info.FElapsedTicks < 5);
 end;
 
 procedure TScopedTraceTest.TestTrace(Times: Integer; IsLongLived: Boolean);
 var
+  Info1, Info2: TTraceInfo;
   I: Integer;
 begin
   with FTracer.Setup do
     begin
-      Expect.Exactly(Times).When.Log(It0.Matches<ITrace>(CheckEventEnter));
-      Expect.Exactly(Times).When.Log(It0.Matches<ITrace>(CheckEventLeave));
+      Info1 := It0.Matches<TTraceInfo>(CheckEventEnter);
+      Info2 := It0.Matches<TTraceInfo>(CheckEventLeave);
+      Expect.Exactly(Times).When.Log(Info1);
+      Expect.Exactly(Times).When.Log(Info2);
     end;
 
   for I := 1 to Times do

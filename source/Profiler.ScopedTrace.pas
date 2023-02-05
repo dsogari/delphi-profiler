@@ -10,19 +10,14 @@ type
   TScopedTrace = class(TInterfacedObject, ITrace)
     private
       FTracer: ITracer;
-      FScopeName: string;
-      FEventType: TTraceEventType;
-      FClockTicks: Int64;
-      FIsLongLived: Boolean;
+      FTraceInfo: TTraceInfo;
 
       class threadvar FPreviousClock, FCurrentClock: Int64;
+      class var FTraceCount: Int64;
       class constructor Create;
 
     private { ITrace }
-      function GetScopeName: string;
-      function GetEventType: TTraceEventType;
-      function GetElapsedTicks: Int64;
-      function IsLongLived: Boolean;
+      function GetInfo: TTraceInfo;
 
     public
       class function NewInstance: TObject; override;
@@ -54,7 +49,7 @@ procedure TScopedTrace.FreeInstance;
 var
   IsLongLived: Boolean;
 begin
-  IsLongLived := FIsLongLived;
+  IsLongLived := FTraceInfo.FIsLongLived;
   inherited;
   if not IsLongLived then
     FCurrentClock := TStopwatch.GetTimeStamp;
@@ -65,16 +60,16 @@ begin
   Result := inherited;
   if FRefCount = 1 then
     begin
-      if (FPreviousClock > 0) and not FIsLongLived then
-        FClockTicks := FCurrentClock - FPreviousClock;
-      FEventType := TTraceEventType.Enter;
-      FTracer.Log(Self); // refcount will be 2
+      if (FPreviousClock > 0) and not FTraceInfo.FIsLongLived then
+        FTraceInfo.FElapsedTicks := FCurrentClock - FPreviousClock;
+      FTraceInfo.FEventType := TTraceEventType.Enter;
+      FTracer.Log(FTraceInfo);
 
-      FClockTicks := TStopwatch.GetTimeStamp;
-      if FIsLongLived then
+      FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp;
+      if FTraceInfo.FIsLongLived then
         FCurrentClock := FPreviousClock // restore normal execution flow
       else
-        FCurrentClock := FClockTicks;
+        FCurrentClock := FTraceInfo.FElapsedTicks;
     end;
 end;
 
@@ -82,12 +77,12 @@ function TScopedTrace._Release: Integer;
 begin
   if FRefCount = 1 then
     begin
-      if FIsLongLived then
-        FClockTicks := TStopwatch.GetTimeStamp - FClockTicks
+      if FTraceInfo.FIsLongLived then
+        FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp - FTraceInfo.FElapsedTicks
       else
-        FClockTicks := TStopwatch.GetTimeStamp - FCurrentClock;
-      FEventType := TTraceEventType.Leave;
-      FTracer.Log(Self); // refcount will be 2
+        FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp - FCurrentClock;
+      FTraceInfo.FEventType := TTraceEventType.Leave;
+      FTracer.Log(FTraceInfo);
     end;
   Result := inherited;
 end;
@@ -96,28 +91,15 @@ constructor TScopedTrace.Create(const Tracer: ITracer; const ScopeName: string;
   IsLongLived: Boolean);
 begin
   FTracer := Tracer;
-  FScopeName := ScopeName;
-  FIsLongLived := IsLongLived;
+  FTraceInfo.FTraceID := AtomicIncrement(FTraceCount);
+  FTraceInfo.FScopeName := ScopeName;
+  FTraceInfo.FIsLongLived := IsLongLived;
 end;
 
-function TScopedTrace.GetScopeName: string;
+function TScopedTrace.GetInfo: TTraceInfo;
 begin
-  Result := FScopeName;
-end;
-
-function TScopedTrace.GetEventType: TTraceEventType;
-begin
-  Result := FEventType;
-end;
-
-function TScopedTrace.GetElapsedTicks: Int64;
-begin
-  Result := FClockTicks;
-end;
-
-function TScopedTrace.IsLongLived: Boolean;
-begin
-  Result := FIsLongLived;
+//  FClockTicks
+  Result := FTraceInfo;
 end;
 
 end.

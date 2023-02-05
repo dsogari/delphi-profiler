@@ -16,17 +16,19 @@ type
     private
       FCallStack: TStack<string>;
       FProfileReport: TProfileReport;
-      FCriticalSection: TCriticalSection;
       FScopeFilter: TRegEx;
 
-      procedure HandleTraceEnter(const Trace: ITrace);
-      procedure HandleTraceLeave(const Trace: ITrace);
+      procedure HandleTraceEnter(const Info: TTraceInfo);
+      procedure HandleTraceLeave(const Info: TTraceInfo);
 
-    private { ITracer }
-      procedure Log(const Trace: ITrace);
-      procedure SetScopeFilter(const Pattern: string);
-      procedure SaveProfileToStream(Stream: TStream);
-      procedure SaveStatisticsToStream(Stream: TStream);
+    protected
+      FCriticalSection: TCriticalSection;
+
+      procedure ClearHistory; virtual;
+      procedure Log(const Info: TTraceInfo); virtual;
+      procedure SetScopeFilter(const Pattern: string); virtual;
+      procedure SaveProfileToStream(Stream: TStream); virtual;
+      procedure SaveStatisticsToStream(Stream: TStream); virtual;
 
     public
       constructor Create;
@@ -51,17 +53,26 @@ begin
   inherited;
 end;
 
-procedure TProfileTracer.Log(const Trace: ITrace);
+procedure TProfileTracer.ClearHistory;
 begin
-  Assert(Assigned(Trace));
   FCriticalSection.Acquire;
   try
-    if FScopeFilter.Match(Trace.ScopeName).Success then
+    FProfileReport.Clear;
+  finally
+    FCriticalSection.Release;
+  end;
+end;
+
+procedure TProfileTracer.Log(const Info: TTraceInfo);
+begin
+  FCriticalSection.Acquire;
+  try
+    if FScopeFilter.Match(Info.FScopeName).Success then
       begin
-        if Trace.EventType = TTraceEventType.Enter then
-          HandleTraceEnter(Trace)
+        if Info.FEventType = TTraceEventType.Enter then
+          HandleTraceEnter(Info)
         else
-          HandleTraceLeave(Trace);
+          HandleTraceLeave(Info);
       end;
   finally
     FCriticalSection.Release;
@@ -83,26 +94,26 @@ begin
   FScopeFilter := TRegEx.Create(Pattern);
 end;
 
-procedure TProfileTracer.HandleTraceEnter(const Trace: ITrace);
+procedure TProfileTracer.HandleTraceEnter(const Info: TTraceInfo);
 begin
-  if not Trace.IsLongLived then
+  if not Info.FIsLongLived then
     begin
       if FCallStack.Count > 0 then
-        FProfileReport.Add(FCallStack.Peek, Trace.ElapsedTicks, False);
-      FCallStack.Push(Trace.ScopeName);
+        FProfileReport.Add(FCallStack.Peek, Info.FElapsedTicks, False);
+      FCallStack.Push(Info.FScopeName);
     end;
 end;
 
-procedure TProfileTracer.HandleTraceLeave(const Trace: ITrace);
+procedure TProfileTracer.HandleTraceLeave(const Info: TTraceInfo);
 begin
-  if Trace.IsLongLived then
-    FProfileReport.Add(Trace.ScopeName, Trace.ElapsedTicks, True)
+  if Info.FIsLongLived then
+    FProfileReport.Add(Info.FScopeName, Info.FElapsedTicks, True)
   else
     begin
       Assert(FCallStack.Count > 0, 'The call stack must not be empty');
-      Assert(FCallStack.Peek = Trace.ScopeName,
+      Assert(FCallStack.Peek = Info.FScopeName,
         'Trying to leave the wrong scope. Maybe this should be a long-lived trace event?');
-      FProfileReport.Add(FCallStack.Pop, Trace.ElapsedTicks, True);
+      FProfileReport.Add(FCallStack.Pop, Info.FElapsedTicks, True);
     end;
 end;
 
