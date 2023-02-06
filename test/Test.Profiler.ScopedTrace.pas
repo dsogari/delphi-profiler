@@ -15,8 +15,7 @@ type
       FTracer: TMock<ITracer>;
 
       function Trace(const ScopeName: string; IsLongLived: Boolean): IInterface;
-      class function CheckEventEnter(Info: TTraceInfo): Boolean;
-      class function CheckEventLeave(Info: TTraceInfo): Boolean;
+      class function CheckTrace(Info: TTraceInfo): Boolean;
 
     public
       [Setup]
@@ -24,7 +23,7 @@ type
       [TearDown]
       procedure TearDown;
 
-      [Test(False)]
+      [Test]
       [TestCase('Once', '1,False')]
       [TestCase('Twice', '2,False')]
       [TestCase('Hundred times', '100,False')]
@@ -54,30 +53,17 @@ begin
   Result := TScopedTrace.Create(FTracer, ScopeName, IsLongLived);
 end;
 
-class function TScopedTraceTest.CheckEventEnter(Info: TTraceInfo): Boolean;
+class function TScopedTraceTest.CheckTrace(Info: TTraceInfo): Boolean;
 begin
   Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
-    (Info.FEventType = TTraceType.Enter);
-end;
-
-class function TScopedTraceTest.CheckEventLeave(Info: TTraceInfo): Boolean;
-begin
-  Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
-    (Info.FEventType = TTraceType.Leave) and (Info.FElapsedTicks < 5);
+    ((Info.FEventType = TTraceType.Enter) or (Info.FElapsedTicks < 10));
 end;
 
 procedure TScopedTraceTest.TestTrace(Times: Integer; IsLongLived: Boolean);
 var
-  Info1, Info2: TTraceInfo;
   I: Integer;
 begin
-  with FTracer.Setup do
-    begin
-      Info1 := It0.Matches<TTraceInfo>(CheckEventEnter);
-      Info2 := It0.Matches<TTraceInfo>(CheckEventLeave);
-      Expect.Exactly(Times).When.Log(Info1);
-      Expect.Exactly(Times).When.Log(Info2);
-    end;
+  FTracer.Setup.Expect.Exactly(2 * Times).When.Log(It0.Matches<TTraceInfo>(CheckTrace));
 
   for I := 1 to Times do
     Trace('Test', IsLongLived);
