@@ -6,18 +6,18 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.Classes,
-  Profiler.ProfileInfo,
+  Profiler.ScopeInfo,
   Profiler.StatisticsReport;
 
 type
 
-  TReportEntry = TPair<string, TProfileInfo>;
+  TReportEntry = TPair<string, TScopeInfo>;
   TEntryArray  = TArray<TReportEntry>;
 
   TProfileReport = class
     private
       FReportLines: TStrings;
-      FReportInfo: TDictionary<string, TProfileInfo>;
+      FReportInfo: TDictionary<string, TScopeInfo>;
       FStatistics: TStatisticsReport;
 
       function GetSortedEntries: TEntryArray;
@@ -51,7 +51,7 @@ end;
 constructor TProfileReport.Create;
 begin
   FReportLines := TStringList.Create;
-  FReportInfo := TObjectDictionary<string, TProfileInfo>.Create([doOwnsValues]);
+  FReportInfo := TObjectDictionary<string, TScopeInfo>.Create([doOwnsValues]);
   FStatistics := TStatisticsReport.Create;
 end;
 
@@ -68,7 +68,7 @@ var
   Entry: TReportEntry;
 begin
   FReportLines.Clear;
-  FReportLines.Add(TProfileInfo.CommaHeader);
+  FReportLines.Add(TScopeInfo.CommaHeader);
   for Entry in GetSortedEntries do
     FReportLines.Add(Entry.Value.CommaText);
   FReportLines.SaveToStream(Stream);
@@ -96,11 +96,11 @@ end;
 
 procedure TProfileReport.Add(const ScopeName: string; ElapsedTicks: Int64; IsEndOfCall: Boolean);
 var
-  Info: TProfileInfo;
+  Info: TScopeInfo;
 begin
   if not FReportInfo.TryGetValue(ScopeName, Info) then
     begin
-      Info := TProfileInfo.Create(ScopeName);
+      Info := TScopeInfo.Create(ScopeName);
       FReportInfo.Add(ScopeName, Info);
     end;
   Info.Add(ElapsedTicks, IsEndOfCall);

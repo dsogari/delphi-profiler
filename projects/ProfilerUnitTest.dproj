@@ -94,9 +94,9 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\test\Test.Profiler.ProfileInfo.pas"/>
+        <DCCReference Include="..\test\Test.Profiler.ScopeInfo.pas"/>
         <DCCReference Include="..\test\Test.Profiler.ProfileReport.pas"/>
-        <DCCReference Include="..\test\Test.Profiler.ProfileStatistic.pas"/>
+        <DCCReference Include="..\test\Test.Profiler.MeasureStatistic.pas"/>
         <DCCReference Include="..\test\Test.Profiler.ProfileTracer.pas"/>
         <DCCReference Include="..\test\Test.Profiler.ScopedTrace.pas"/>
         <DCCReference Include="..\test\Test.Profiler.StatisticsReport.pas"/>

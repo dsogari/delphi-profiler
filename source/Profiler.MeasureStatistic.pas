@@ -1,4 +1,4 @@
-unit Profiler.ProfileStatistic;
+unit Profiler.MeasureStatistic;
 
 interface
 
@@ -7,7 +7,7 @@ uses
 
 type
 
-  TProfileStatistic = class
+  TMeasureStatistic = class
     private
       FMeasureName: string;
       FMean: Double;
@@ -33,18 +33,18 @@ uses
   System.SysUtils,
   System.Math;
 
-constructor TProfileStatistic.Create(const MeasureName: string);
+constructor TMeasureStatistic.Create(const MeasureName: string);
 begin
   FMeasureName := MeasureName;
 end;
 
-constructor TProfileStatistic.Create(const MeasureName: string; const Values: TArray<Double>);
+constructor TMeasureStatistic.Create(const MeasureName: string; const Values: TArray<Double>);
 begin
   Create(MeasureName);
   SetValues(Values);
 end;
 
-class function TProfileStatistic.GetMedian(var Values: TArray<Double>): Double;
+class function TMeasureStatistic.GetMedian(var Values: TArray<Double>): Double;
 var
   len: Integer;
 begin
@@ -57,7 +57,7 @@ begin
     Result := Values[len div 2];
 end;
 
-procedure TProfileStatistic.SetValues(Values: TArray<Double>);
+procedure TMeasureStatistic.SetValues(Values: TArray<Double>);
 begin
   if Length(Values) > 0 then
     begin
@@ -72,14 +72,14 @@ begin
     end;
 end;
 
-class function TProfileStatistic.CommaHeader: string;
+class function TMeasureStatistic.CommaHeader: string;
 const
   headerFormat = '"%s","%s","%s","%s"';
 begin
   Result := Format(headerFormat, ['Measure', 'Mean', 'Median', 'Standard Dev.']);
 end;
 
-function TProfileStatistic.CommaText: string;
+function TMeasureStatistic.CommaText: string;
 const
   textFormat = '"%s","%.2f","%.2f","%.2f"';
 begin

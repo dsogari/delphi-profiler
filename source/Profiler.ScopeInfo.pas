@@ -1,10 +1,10 @@
-unit Profiler.ProfileInfo;
+unit Profiler.ScopeInfo;
 
 interface
 
 type
 
-  TProfileInfo = class
+  TScopeInfo = class
     private
       FScopeName: string;
       FTotalCalls: Int64;
@@ -33,26 +33,26 @@ uses
   System.SysUtils,
   System.Diagnostics;
 
-constructor TProfileInfo.Create(const ScopeName: string);
+constructor TScopeInfo.Create(const ScopeName: string);
 begin
   FScopeName := ScopeName;
 end;
 
-constructor TProfileInfo.Create(const ScopeName: string; TotalCalls, TotalTicks: Int64);
+constructor TScopeInfo.Create(const ScopeName: string; TotalCalls, TotalTicks: Int64);
 begin
   Create(ScopeName);
   FTotalCalls := TotalCalls;
   FTotalTicks := TotalTicks;
 end;
 
-procedure TProfileInfo.Add(ElapsedTicks: Int64; IsEndOfCall: Boolean);
+procedure TScopeInfo.Add(ElapsedTicks: Int64; IsEndOfCall: Boolean);
 begin
   Inc(FTotalTicks, ElapsedTicks);
   if IsEndOfCall then
     Inc(FTotalCalls);
 end;
 
-class function TProfileInfo.CommaHeader: string;
+class function TScopeInfo.CommaHeader: string;
 const
   HeaderFormat = '"%s","%s","%s","%s"';
 begin
@@ -60,20 +60,20 @@ begin
       'Avg. Time (us)']);
 end;
 
-function TProfileInfo.CommaText: string;
+function TScopeInfo.CommaText: string;
 const
   TextFormat = '"%s","%d","%.2f","%.2f"';
 begin
   Result := Format(TextFormat, [FScopeName, FTotalCalls, TotalMicroseconds, AverageMicroseconds]);
 end;
 
-function TProfileInfo.GetTotalMicroseconds: Double;
+function TScopeInfo.GetTotalMicroseconds: Double;
 begin
   Assert(TStopwatch.Frequency > 0);
   Result := FTotalTicks * 1000000.0 / TStopwatch.Frequency;
 end;
 
-function TProfileInfo.GetAverageMicroseconds: Double;
+function TScopeInfo.GetAverageMicroseconds: Double;
 begin
   Assert(FTotalCalls > 0);
   Result := TotalMicroseconds / FTotalCalls;

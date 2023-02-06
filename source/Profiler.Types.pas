@@ -39,7 +39,7 @@ type
     /// Log a trace event
     procedure Log(const Info: TTraceInfo);
 
-    /// Set a pattern for filtering scope names
+    /// Set a pattern to filter scope names
     procedure SetScopeFilter(const Pattern: string);
 
     /// Save the profile report to an output stream

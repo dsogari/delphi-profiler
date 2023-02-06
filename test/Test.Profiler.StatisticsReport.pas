@@ -6,7 +6,7 @@ uses
   DUnitX.TestFramework,
   System.Classes,
   Profiler.StatisticsReport,
-  Profiler.ProfileInfo;
+  Profiler.ScopeInfo;
 
 type
 
@@ -14,7 +14,7 @@ type
   TStatisticsReportTest = class
     private
       FStatisticsReport: TStatisticsReport;
-      FProfileInfo: TProfileInfo;
+      FScopeInfo: TScopeInfo;
       FStream: TStringStream;
       FStrings: TStrings;
 
@@ -59,16 +59,16 @@ begin
   for S in DelimitedInfos.Split(['|']) do
     begin
       Strings := S.Split([',']);
-      FProfileInfo.TotalCalls := Strings[0].ToInt64;
-      FProfileInfo.TotalTicks := Strings[1].ToInt64;
-      FStatisticsReport.Add(FProfileInfo);
+      FScopeInfo.TotalCalls := Strings[0].ToInt64;
+      FScopeInfo.TotalTicks := Strings[1].ToInt64;
+      FStatisticsReport.Add(FScopeInfo);
     end;
 end;
 
 procedure TStatisticsReportTest.Setup;
 begin
   FStatisticsReport := TStatisticsReport.Create;
-  FProfileInfo := TProfileInfo.Create('abc');
+  FScopeInfo := TScopeInfo.Create('abc');
   FStream := TStringStream.Create;
   FStrings := TStringList.Create;
   FStrings.Delimiter := '|';
@@ -79,7 +79,7 @@ end;
 procedure TStatisticsReportTest.TearDown;
 begin
   FStatisticsReport.Free;
-  FProfileInfo.Free;
+  FScopeInfo.Free;
   FStream.Free;
   FStrings.Free;
 end;

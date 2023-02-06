@@ -32,9 +32,9 @@ requires
   rtl;
 
 contains
-  Profiler.ProfileInfo in '..\source\Profiler.ProfileInfo.pas',
+  Profiler.ScopeInfo in '..\source\Profiler.ScopeInfo.pas',
   Profiler.ProfileReport in '..\source\Profiler.ProfileReport.pas',
-  Profiler.ProfileStatistic in '..\source\Profiler.ProfileStatistic.pas',
+  Profiler.MeasureStatistic in '..\source\Profiler.MeasureStatistic.pas',
   Profiler.ProfileTracer in '..\source\Profiler.ProfileTracer.pas',
   Profiler.ScopedTrace in '..\source\Profiler.ScopedTrace.pas',
   Profiler.StatisticsReport in '..\source\Profiler.StatisticsReport.pas',

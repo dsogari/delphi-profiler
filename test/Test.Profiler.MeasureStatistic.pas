@@ -1,17 +1,17 @@
-unit Test.Profiler.ProfileStatistic;
+unit Test.Profiler.MeasureStatistic;
 
 interface
 
 uses
   DUnitX.TestFramework,
-  Profiler.ProfileStatistic;
+  Profiler.MeasureStatistic;
 
 type
 
   [TestFixture]
-  TProfileStatisticTest = class
+  TMeasureStatisticTest = class
     private
-      FProfileStatistic: TProfileStatistic;
+      FMeasureStatistic: TMeasureStatistic;
 
     public
       [Setup]
@@ -36,24 +36,24 @@ implementation
 uses
   System.SysUtils;
 
-{ TProfileStatisticTest }
+{ TMeasureStatisticTest }
 
-procedure TProfileStatisticTest.Setup;
+procedure TMeasureStatisticTest.Setup;
 begin
-  FProfileStatistic := TProfileStatistic.Create('abc');
+  FMeasureStatistic := TMeasureStatistic.Create('abc');
 end;
 
-procedure TProfileStatisticTest.TearDown;
+procedure TMeasureStatisticTest.TearDown;
 begin
-  FProfileStatistic.Free;
+  FMeasureStatistic.Free;
 end;
 
-procedure TProfileStatisticTest.TestCommaHeader(const Expected: string);
+procedure TMeasureStatisticTest.TestCommaHeader(const Expected: string);
 begin
-  Assert.AreEqual(Expected, FProfileStatistic.CommaHeader);
+  Assert.AreEqual(Expected, FMeasureStatistic.CommaHeader);
 end;
 
-procedure TProfileStatisticTest.TestCommaText(const DelimitedValues, Expected: string);
+procedure TMeasureStatisticTest.TestCommaText(const DelimitedValues, Expected: string);
 var
   Values: TArray<Double>;
   Strings: TArray<string>;
@@ -63,8 +63,8 @@ begin
   SetLength(Values, Length(Strings));
   for I := Low(Strings) to High(Strings) do
     Values[I] := Strings[I].ToDouble;
-  FProfileStatistic.Values := Values;
-  Assert.AreEqual(Expected, FProfileStatistic.CommaText);
+  FMeasureStatistic.Values := Values;
+  Assert.AreEqual(Expected, FMeasureStatistic.CommaText);
 end;
 
 end.

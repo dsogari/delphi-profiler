@@ -3,8 +3,8 @@ unit Profiler.StatisticsReport;
 interface
 
 uses
-  Profiler.ProfileStatistic,
-  Profiler.ProfileInfo,
+  Profiler.MeasureStatistic,
+  Profiler.ScopeInfo,
   System.Generics.Collections,
   System.Classes;
 
@@ -13,7 +13,7 @@ type
   TStatisticsReport = class
     private
       FReportLines: TStrings;
-      FReportInfo: TList<TProfileStatistic>;
+      FStatistics: TList<TMeasureStatistic>;
       FTotalCalls: TList<Double>;
       FTotalMicroseconds: TList<Double>;
       FAverageMicroseconds: TList<Double>;
@@ -21,7 +21,7 @@ type
     public
       constructor Create;
       destructor Destroy; override;
-      procedure Add(const Info: TProfileInfo);
+      procedure Add(const Info: TScopeInfo);
       procedure Clear;
       procedure Compute;
       procedure SaveToStream(Stream: TStream);
@@ -33,7 +33,7 @@ constructor TStatisticsReport.Create;
 begin
   inherited;
   FReportLines := TStringList.Create;
-  FReportInfo := TObjectList<TProfileStatistic>.Create;
+  FStatistics := TObjectList<TMeasureStatistic>.Create;
   FTotalCalls := TList<Double>.Create;
   FTotalMicroseconds := TList<Double>.Create;
   FAverageMicroseconds := TList<Double>.Create;
@@ -42,14 +42,14 @@ end;
 destructor TStatisticsReport.Destroy;
 begin
   FReportLines.Free;
-  FReportInfo.Free;
+  FStatistics.Free;
   FTotalCalls.Free;
   FTotalMicroseconds.Free;
   FAverageMicroseconds.Free;
   inherited;
 end;
 
-procedure TStatisticsReport.Add(const Info: TProfileInfo);
+procedure TStatisticsReport.Add(const Info: TScopeInfo);
 begin
   FTotalCalls.Add(Info.TotalCalls);
   FTotalMicroseconds.Add(Info.TotalMicroseconds);
@@ -65,19 +65,19 @@ end;
 
 procedure TStatisticsReport.Compute;
 begin
-  FReportInfo.Clear;
-  FReportInfo.Add(TProfileStatistic.Create('Total Calls', FTotalCalls.ToArray));
-  FReportInfo.Add(TProfileStatistic.Create('Total Time (us)', FTotalMicroseconds.ToArray));
-  FReportInfo.Add(TProfileStatistic.Create('Avg. Time (us)', FAverageMicroseconds.ToArray));
+  FStatistics.Clear;
+  FStatistics.Add(TMeasureStatistic.Create('Total Calls', FTotalCalls.ToArray));
+  FStatistics.Add(TMeasureStatistic.Create('Total Time (us)', FTotalMicroseconds.ToArray));
+  FStatistics.Add(TMeasureStatistic.Create('Avg. Time (us)', FAverageMicroseconds.ToArray));
 end;
 
 procedure TStatisticsReport.SaveToStream(Stream: TStream);
 var
-  statistic: TProfileStatistic;
+  statistic: TMeasureStatistic;
 begin
   FReportLines.Clear;
-  FReportLines.Add(TProfileStatistic.CommaHeader);
-  for statistic in FReportInfo do
+  FReportLines.Add(TMeasureStatistic.CommaHeader);
+  for statistic in FStatistics do
     FReportLines.Add(statistic.CommaText);
   FReportLines.SaveToStream(Stream);
 end;

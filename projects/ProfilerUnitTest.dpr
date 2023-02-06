@@ -14,24 +14,23 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  Test.Profiler.ProfileInfo in '..\test\Test.Profiler.ProfileInfo.pas',
+  Test.Profiler.ScopeInfo in '..\test\Test.Profiler.ScopeInfo.pas',
   Test.Profiler.ProfileReport in '..\test\Test.Profiler.ProfileReport.pas',
-  Test.Profiler.ProfileStatistic in '..\test\Test.Profiler.ProfileStatistic.pas',
+  Test.Profiler.MeasureStatistic in '..\test\Test.Profiler.MeasureStatistic.pas',
   Test.Profiler.ProfileTracer in '..\test\Test.Profiler.ProfileTracer.pas',
   Test.Profiler.ScopedTrace in '..\test\Test.Profiler.ScopedTrace.pas',
   Test.Profiler.StatisticsReport in '..\test\Test.Profiler.StatisticsReport.pas';
 
-{$IFNDEF TESTINSIGHT}
+{$IFDEF TESTINSIGHT}
+begin
+  TestInsight.DUnitX.RunRegisteredTests;
+{$ELSE}
 var
   runner: ITestRunner;
   results: IRunResults;
   logger: ITestLogger;
   nunitLogger : ITestLogger;
-{$ENDIF}
 begin
-{$IFDEF TESTINSIGHT}
-  TestInsight.DUnitX.RunRegisteredTests;
-{$ELSE}
   try
     //Check command line options, will exit if invalid
     TDUnitX.CheckCommandLine;
