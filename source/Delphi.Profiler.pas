@@ -48,4 +48,10 @@ begin
   DefaultProfile.Trace(ScopeName, Trace);
 end;
 
+initialization
+
+finalization
+
+DefaultProfile.Free;
+
 end.

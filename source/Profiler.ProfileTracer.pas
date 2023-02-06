@@ -81,17 +81,32 @@ end;
 
 procedure TProfileTracer.SaveProfileToStream(Stream: TStream);
 begin
-  FProfileReport.SaveProfileToStream(Stream);
+  FCriticalSection.Acquire;
+  try
+    FProfileReport.SaveProfileToStream(Stream);
+  finally
+    FCriticalSection.Release;
+  end;
 end;
 
 procedure TProfileTracer.SaveStatisticsToStream(Stream: TStream);
 begin
-  FProfileReport.SaveStatisticsToStream(Stream);
+  FCriticalSection.Acquire;
+  try
+    FProfileReport.SaveStatisticsToStream(Stream);
+  finally
+    FCriticalSection.Release;
+  end;
 end;
 
 procedure TProfileTracer.SetScopeFilter(const Pattern: string);
 begin
-  FScopeFilter := TRegEx.Create(Pattern);
+  FCriticalSection.Acquire;
+  try
+    FScopeFilter := TRegEx.Create(Pattern);
+  finally
+    FCriticalSection.Release;
+  end;
 end;
 
 procedure TProfileTracer.HandleTraceEnter(const Info: TTraceInfo);

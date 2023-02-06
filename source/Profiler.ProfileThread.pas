@@ -22,10 +22,6 @@ type
       procedure SaveTracingStatisticsToFile;
       procedure Stop;
 
-      class var FRegisteredThreads: TList<TProfileThread>;
-      class constructor Create;
-      class destructor Destroy;
-
     protected
       procedure Execute; override;
 
@@ -62,21 +58,10 @@ uses
 
 { TProfileThread }
 
-class constructor TProfileThread.Create;
-begin
-  FRegisteredThreads := TObjectList<TProfileThread>.Create;
-end;
-
-class destructor TProfileThread.Destroy;
-begin
-  FRegisteredThreads.Free;
-end;
-
 constructor TProfileThread.Create(const PrefixPath: string);
 begin
   FTracerCreated := TEvent.Create;
   FPrefixPath := PrefixPath;
-  FRegisteredThreads.Add(Self);
   inherited Create(False);
 end;
 
