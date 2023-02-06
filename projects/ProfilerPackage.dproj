@@ -97,8 +97,9 @@
         <DCCReference Include="..\source\Profiler.ProfileTracer.pas"/>
         <DCCReference Include="..\source\Profiler.ScopedTrace.pas"/>
         <DCCReference Include="..\source\Profiler.StatisticsReport.pas"/>
-        <DCCReference Include="..\source\Profiler.Trace.pas"/>
-        <DCCReference Include="..\source\Profiler.Profile.pas"/>
+        <DCCReference Include="..\source\Delphi.Profiler.pas"/>
+        <DCCReference Include="..\source\Profiler.ProfileThread.pas"/>
+        <DCCReference Include="..\source\Profiler.Types.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -150,12 +151,6 @@
                 <DeployFile LocalName="..\build\Win64\Debug\bin\ProfilerPackage.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>ProfilerPackage.bpl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\build\Win64\Debug\bin\ProfilerPackage.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>ProfilerPackage.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

@@ -3,7 +3,7 @@ unit Profiler.ProfileTracer;
 interface
 
 uses
-  Profiler.Trace,
+  Profiler.Types,
   Profiler.ProfileReport,
   System.Classes,
   System.SyncObjs,
@@ -69,7 +69,7 @@ begin
   try
     if FScopeFilter.Match(Info.FScopeName).Success then
       begin
-        if Info.FEventType = TTraceEventType.Enter then
+        if Info.FEventType = TTraceType.Enter then
           HandleTraceEnter(Info)
         else
           HandleTraceLeave(Info);

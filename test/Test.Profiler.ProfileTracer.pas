@@ -5,7 +5,7 @@ interface
 uses
   DUnitX.TestFramework,
   System.Classes,
-  Profiler.Trace;
+  Profiler.Types;
 
 type
 
@@ -96,7 +96,7 @@ begin
     begin
       Strings := S.Split([',']);
       Info.FScopeName := Strings[0];
-      Info.FEventType := TTraceEventType(Strings[1].ToInteger);
+      Info.FEventType := TTraceType(Strings[1].ToInteger);
       Info.FElapsedTicks := Strings[2].ToInt64;
       Info.FIsLongLived := Strings[3].ToBoolean;
       FTracer.Log(Info);

@@ -1,4 +1,4 @@
-unit Profiler.Profile;
+unit Profiler.ProfileThread;
 
 interface
 
@@ -6,25 +6,23 @@ uses
   System.Classes,
   System.Generics.Collections,
   System.SyncObjs,
-  Profiler.Trace,
+  Profiler.Types,
   Profiler.ProfileTracer,
   Winapi.Messages;
 
 type
 
-  TProfile = class(TThread)
+  TProfileThread = class(TThread)
     private
       FProfileTracer: ITracer;
       FTracerCreated: TEvent;
-      FProfileFileName: string;
-      FStatisticsFileName: string;
-      FScopeFilterPattern: string;
+      FPrefixPath: string;
 
       procedure SaveTracingProfileToFile;
       procedure SaveTracingStatisticsToFile;
       procedure Stop;
 
-      class var FRegisteredProfiles: TList<TProfile>;
+      class var FRegisteredThreads: TList<TProfileThread>;
       class constructor Create;
       class destructor Destroy;
 
@@ -32,11 +30,11 @@ type
       procedure Execute; override;
 
     public
-      constructor Create(const ProfileName: string; const DirectoryPath: string = '.');
+      constructor Create(const PrefixPath: string);
       destructor Destroy; override;
       procedure SetScopeFilter(const Pattern: string);
-      function Trace(const ScopeName: string): ITrace; overload;
-      procedure Trace(const ScopeName: string; out Trace: ITrace); overload;
+      function Trace(const ScopeName: string): IInterface; overload;
+      procedure Trace(const ScopeName: string; out Trace: IInterface); overload;
   end;
 
   THWndProfileTracer = class(TProfileTracer)
@@ -62,42 +60,39 @@ uses
   Profiler.ScopedTrace,
   Winapi.Windows;
 
-{ TProfile }
+{ TProfileThread }
 
-class constructor TProfile.Create;
+class constructor TProfileThread.Create;
 begin
-  FRegisteredProfiles := TObjectList<TProfile>.Create;
+  FRegisteredThreads := TObjectList<TProfileThread>.Create;
 end;
 
-class destructor TProfile.Destroy;
+class destructor TProfileThread.Destroy;
 begin
-  FRegisteredProfiles.Free;
+  FRegisteredThreads.Free;
 end;
 
-constructor TProfile.Create(const ProfileName, DirectoryPath: string);
+constructor TProfileThread.Create(const PrefixPath: string);
 begin
   FTracerCreated := TEvent.Create;
-  FProfileFileName := IncludeTrailingPathDelimiter(DirectoryPath) + ProfileName + '-profile.csv';
-  FStatisticsFileName := IncludeTrailingPathDelimiter(DirectoryPath) + ProfileName + '-stats.csv';
-  FRegisteredProfiles.Add(Self);
+  FPrefixPath := PrefixPath;
+  FRegisteredThreads.Add(Self);
   inherited Create(False);
 end;
 
-destructor TProfile.Destroy;
+destructor TProfileThread.Destroy;
 begin
   Stop;
   inherited;
   FTracerCreated.Free;
 end;
 
-procedure TProfile.Execute;
+procedure TProfileThread.Execute;
 var
   Msg: TMsg;
 begin
   FProfileTracer := THWndProfileTracer.Create;
   FTracerCreated.SetEvent;
-  if not FScopeFilterPattern.IsEmpty then
-    FProfileTracer.SetScopeFilter(FScopeFilterPattern);
 
   while GetMessage(Msg, 0, 0, 0) do
     begin
@@ -109,7 +104,7 @@ begin
   SaveTracingStatisticsToFile;
 end;
 
-procedure TProfile.Stop;
+procedure TProfileThread.Stop;
 begin
   if not Terminated then
     begin
@@ -118,11 +113,11 @@ begin
     end;
 end;
 
-procedure TProfile.SaveTracingProfileToFile;
+procedure TProfileThread.SaveTracingProfileToFile;
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create(FProfileFileName, fmCreate);
+  Stream := TFileStream.Create(FPrefixPath + '-profile.csv', fmCreate);
   try
     FProfileTracer.SaveProfileToStream(Stream);
   finally
@@ -130,11 +125,11 @@ begin
   end;
 end;
 
-procedure TProfile.SaveTracingStatisticsToFile;
+procedure TProfileThread.SaveTracingStatisticsToFile;
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create(FStatisticsFileName, fmCreate);
+  Stream := TFileStream.Create(FPrefixPath + '-stats.csv', fmCreate);
   try
     FProfileTracer.SaveStatisticsToStream(Stream);
   finally
@@ -142,19 +137,19 @@ begin
   end;
 end;
 
-procedure TProfile.SetScopeFilter(const Pattern: string);
+procedure TProfileThread.SetScopeFilter(const Pattern: string);
 begin
   FTracerCreated.WaitFor;
   FProfileTracer.SetScopeFilter(Pattern);
 end;
 
-procedure TProfile.Trace(const ScopeName: string; out Trace: ITrace);
+procedure TProfileThread.Trace(const ScopeName: string; out Trace: IInterface);
 begin
   FTracerCreated.WaitFor;
   Trace := TScopedTrace.Create(FProfileTracer, ScopeName, True);
 end;
 
-function TProfile.Trace(const ScopeName: string): ITrace;
+function TProfileThread.Trace(const ScopeName: string): IInterface;
 begin
   FTracerCreated.WaitFor;
   Result := TScopedTrace.Create(FProfileTracer, ScopeName, False);

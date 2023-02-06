@@ -7,10 +7,10 @@ program ProfilerClientTest;
 
 uses
   System.SysUtils,
-  Profiler.Trace;
+  Delphi.Profiler;
 
 var
-  LongLived: ITrace;
+  LongLived: IInterface;
 
 procedure Innermost;
 begin

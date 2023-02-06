@@ -38,7 +38,8 @@ contains
   Profiler.ProfileTracer in '..\source\Profiler.ProfileTracer.pas',
   Profiler.ScopedTrace in '..\source\Profiler.ScopedTrace.pas',
   Profiler.StatisticsReport in '..\source\Profiler.StatisticsReport.pas',
-  Profiler.Trace in '..\source\Profiler.Trace.pas',
-  Profiler.Profile in '..\source\Profiler.Profile.pas';
+  Delphi.Profiler in '..\source\Delphi.Profiler.pas',
+  Profiler.ProfileThread in '..\source\Profiler.ProfileThread.pas',
+  Profiler.Types in '..\source\Profiler.Types.pas';
 
 end.

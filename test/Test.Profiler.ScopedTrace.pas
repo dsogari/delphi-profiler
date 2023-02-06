@@ -5,7 +5,7 @@ interface
 uses
   DUnitX.TestFramework,
   Delphi.Mocks,
-  Profiler.Trace;
+  Profiler.Types;
 
 type
 
@@ -14,7 +14,7 @@ type
     private
       FTracer: TMock<ITracer>;
 
-      function Trace(const ScopeName: string; IsLongLived: Boolean): ITrace;
+      function Trace(const ScopeName: string; IsLongLived: Boolean): IInterface;
       class function CheckEventEnter(Info: TTraceInfo): Boolean;
       class function CheckEventLeave(Info: TTraceInfo): Boolean;
 
@@ -49,7 +49,7 @@ begin
   FTracer.Free;
 end;
 
-function TScopedTraceTest.Trace(const ScopeName: string; IsLongLived: Boolean): ITrace;
+function TScopedTraceTest.Trace(const ScopeName: string; IsLongLived: Boolean): IInterface;
 begin
   Result := TScopedTrace.Create(FTracer, ScopeName, IsLongLived);
 end;
@@ -57,13 +57,13 @@ end;
 class function TScopedTraceTest.CheckEventEnter(Info: TTraceInfo): Boolean;
 begin
   Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
-    (Info.FEventType = TTraceEventType.Enter);
+    (Info.FEventType = TTraceType.Enter);
 end;
 
 class function TScopedTraceTest.CheckEventLeave(Info: TTraceInfo): Boolean;
 begin
   Result := (Info.FTraceID > 0) and (Info.FScopeName = 'Test') and
-    (Info.FEventType = TTraceEventType.Leave) and (Info.FElapsedTicks < 5);
+    (Info.FEventType = TTraceType.Leave) and (Info.FElapsedTicks < 5);
 end;
 
 procedure TScopedTraceTest.TestTrace(Times: Integer; IsLongLived: Boolean);

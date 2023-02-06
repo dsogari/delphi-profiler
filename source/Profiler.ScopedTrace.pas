@@ -3,11 +3,11 @@ unit Profiler.ScopedTrace;
 interface
 
 uses
-  Profiler.Trace;
+  Profiler.Types;
 
 type
 
-  TScopedTrace = class(TInterfacedObject, ITrace)
+  TScopedTrace = class(TInterfacedObject, IInterface)
     private
       FTracer: ITracer;
       FTraceInfo: TTraceInfo;
@@ -15,9 +15,6 @@ type
       class threadvar FPreviousClock, FCurrentClock: Int64;
       class var FTraceCount: Int64;
       class constructor Create;
-
-    private { ITrace }
-      function GetInfo: TTraceInfo;
 
     public
       class function NewInstance: TObject; override;
@@ -62,7 +59,7 @@ begin
     begin
       if (FPreviousClock > 0) and not FTraceInfo.FIsLongLived then
         FTraceInfo.FElapsedTicks := FCurrentClock - FPreviousClock;
-      FTraceInfo.FEventType := TTraceEventType.Enter;
+      FTraceInfo.FEventType := TTraceType.Enter;
       FTracer.Log(FTraceInfo);
 
       FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp;
@@ -81,7 +78,7 @@ begin
         FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp - FTraceInfo.FElapsedTicks
       else
         FTraceInfo.FElapsedTicks := TStopwatch.GetTimeStamp - FCurrentClock;
-      FTraceInfo.FEventType := TTraceEventType.Leave;
+      FTraceInfo.FEventType := TTraceType.Leave;
       FTracer.Log(FTraceInfo);
     end;
   Result := inherited;
@@ -94,12 +91,6 @@ begin
   FTraceInfo.FTraceID := AtomicIncrement(FTraceCount);
   FTraceInfo.FScopeName := ScopeName;
   FTraceInfo.FIsLongLived := IsLongLived;
-end;
-
-function TScopedTrace.GetInfo: TTraceInfo;
-begin
-//  FClockTicks
-  Result := FTraceInfo;
 end;
 
 end.
